@@ -94,14 +94,78 @@ async def shipwreck():
 #         missions = move_to_front(missions, "3")
 
 async def flag_pull():
-    await db.straight(1000)
-    await db.curve(500, 43)
-    await accuTurn(-150)
-    await wait(300)
-    await db.straight(180)
-    await accuTurn(-90)
-    await db.straight(150)
+    #brings the right arm up
+    await right.run_angle(500,-200)
+    await db.straight(1212)
+    #turning
+    accuTurn(-90)
+    #goes to the basket-land
+    await db.straight(70)
+
+    #puts right arm down
+    await right.run_time(500, 200)
+
+    #puts left arm down to hit the basket
+    await left.run_angle(500, -180)
+    #moves left arm back up
+    await left.run_angle(500, 180)
+
+    #puts right arm back up
+    await right.run_time(500, -200)
+
+    #backs up
+    await db.straight(-90),
+   
+    
+async def scissors():
+    db.reset()
+    #curves to an angle
+    await db.curve(475,-40.2, Stop.NONE)
     await multitask(
+        #heads forward more
+        db.straight(240),
+        #expands the scissor to put the flag in spot
+        right.run_angle(300,505)
+    )
+    #closes the scissors
+    await right.run_angle(400,-550)
+    #goes backward
+    await db.straight(-100)
+    #turns to another mission
+    accuTurn(4)
+    wait(30)
+    #extends the scissor
+    await right.run_angle(400,300)
+    
+     #timed base turn
+    db.drive(0, -500)
+    #waits that long before running stoppinjg
+    await wait(700) 
+    #stops the turning
+    db.stop()
+    #closes scissor
+    await right.run_angle(400,-150)
+    #turns to the next mission
+    db.drive(0, 500)
+    #wait
+    await wait(500)
+    db.stop()
+    #closes the scissor a little bit
+    await right.run_angle(400,-200)
+    #accute turns to the final mission we are doing for this run
+    accuTurn(-51)
+    #lowers the rubber arm onto the table
+    await left.run_angle(500, 720)
+    #backs up to lift the structure off the ground
+    await db.straight(-250)
+    #moves slightly forward
+    await db.straight(100)
+    #turns away form the mission
+    await db.turn(50)
+    #multitasks: brings the rubber arm back to its origin spot, backs up to starting point
+    await multitask(
+        left.run_angle(500, -500),
+        db.straight(-700)
     )
 
-left.run_angle(300, 90)
+run_task(scissors())
