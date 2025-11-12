@@ -144,7 +144,7 @@ async def scissors():
     #stops the turning
     db.stop()
     #closes scissor
-    await right.run_angle(400,-150)
+    await right.run_angle(400,-140)
     #turns to the next mission
     db.drive(0, 500)
     #wait
@@ -159,7 +159,7 @@ async def scissors():
     #backs up to lift the structure off the ground
     await db.straight(-250)
     #moves slightly forward
-    await db.straight(100)
+    # await db.straight(100)
     #turns away form the mission
     await db.turn(50)
     #multitasks: brings the rubber arm back to its origin spot, backs up to starting point
@@ -168,4 +168,29 @@ async def scissors():
         db.straight(-700)
     )
 
-run_task(scissors())
+async def sandy():
+    db.use_gyro( True )
+    #move toward the ship
+    await db.straight( 500 )
+    
+    #make sure we are facing the ship head on
+    accuTurn(0, 0.1)
+    
+    #grind into the sunken ship
+    await wait( 500 )
+    db.drive(100,7)
+    await wait( 1200 )
+    db.stop()
+
+    #drop the slide / grab the red arm
+    await right.run_angle(500, -340)
+    #pull the red arm back
+    await db.straight( -100 )
+    #drop the red arm
+    await right.run_angle( 500, 340 )
+
+    #back to base
+    await db.straight( -500 )
+
+
+run_task(sandy())
