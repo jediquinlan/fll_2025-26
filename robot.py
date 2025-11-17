@@ -193,4 +193,23 @@ async def sandy():
     await db.straight( -500 )
 
 
-run_task(sandy())
+# run_task(sandy())
+
+async def trident_pt_1():
+    await db.straight( 700 )
+    await db.straight( -175 )
+    await left.run_angle( 500, -360*1.5 )
+    await db.straight(-700)
+
+async def trident_pt_2():
+    await db.straight( 800 )
+    accuTurn( -45 )
+    await db.straight( -100 )
+    await right.run_angle( 500, 360*6 )
+    await db.straight( 150 )
+    await db.straight( -65 )
+    await right.run_angle( 500, -360*6 )
+    await db.curve( -250, -70, Stop.NONE)
+    await db.straight( -600 )
+
+run_task(trident_pt_2())
