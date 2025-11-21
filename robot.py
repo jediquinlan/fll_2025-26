@@ -51,31 +51,6 @@ def dbResetSettings( ):
     db.settings( *db_def_settings )
 
 
-async def shipwreck():
-    await multitask(
-        #lift up the arm from the ground so we don't drag
-        right.run_angle(100,-50),
-        #from base, go toward the ship
-        db.straight(445)
-    )
-    #put the arm back down over the sand trap arm
-    await right.run_angle(100,50)
-    #back up to drop the sand from the ship
-    await db.straight(-50)
-    #lifts one arm up(the one used to drop the sand) and the other one down
-    await right.run_angle(100,-50)
-    #backs up
-    await db.straight(-50)
-    #drops one of the arm down
-    await right.run_angle(100,-90)
-    #pushes the red thing to raise the ship
-    await db.straight(100)
-    #backs up from the ship
-    await db.straight(-100)
-    await left.run_angle(-500,-900, Stop.COAST)
-    await left.run_angle(-500,900, Stop.COAST)
-
-# run_task(shipwreck())
 
 # given abcd, and b, return bcda
 # def move_to_front(my_list, value):
@@ -94,27 +69,15 @@ async def shipwreck():
 #         missions = move_to_front(missions, "3")
 
 async def flag_pull():
-    #brings the right arm up
-    await right.run_angle(500,-200)
     await db.straight(1212)
     #turning
     accuTurn(-90)
-    #goes to the basket-land
-    await db.straight(70)
-
-    #puts right arm down
-    await right.run_time(500, 200)
-
-    #puts left arm down to hit the basket
-    await left.run_angle(500, -180)
-    #moves left arm back up
-    await left.run_angle(500, 180)
-
-    #puts right arm back up
-    await right.run_time(500, -200)
-
-    #backs up
-    await db.straight(-90),
+    # goes to the basket-land
+    await db.straight(50)
+    await left.run_angle(500, -500)
+    await left.run_angle(500, 500)
+    await right.run_angle(500, 1000)
+    await db.straight(-300)
    
     
 async def scissors():
@@ -212,4 +175,4 @@ async def trident_pt_2():
     await db.curve( -250, -70, Stop.NONE)
     await db.straight( -600 )
 
-run_task(trident_pt_2())
+run_task(flag_pull())
