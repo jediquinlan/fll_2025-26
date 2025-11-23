@@ -39,7 +39,7 @@ def accuTurn(target_angle, tolerance=0.25, speed=80):
             speed = 10
         
 
-        print( 'c', current_angle, 'd', angle_difference, 'speed', speed )
+        # print( 'c', current_angle, 'd', angle_difference, 'speed', speed )
 
         direction = speed if clockwise else -speed
         db.drive(0, direction)
@@ -52,21 +52,7 @@ def dbResetSettings( ):
 
 
 
-# given abcd, and b, return bcda
-# def move_to_front(my_list, value):
-#     index = my_list.index(value)
-#     shifted_list = my_list[index:] + my_list[:index]
-#     return shifted_list
 
-# missions = ["1", "2", "3"]
-# while True:
-#     selected = hub_menu( *missions )
-#     if selected == "1":
-#         run_task(shipwreck())
-#         missions = move_to_front(missions, "2")
-#     if selected == "2":
-#         run_task(flag_pull())
-#         missions = move_to_front(missions, "3")
 
 async def flag_pull():
     await db.straight(1212)
@@ -74,11 +60,16 @@ async def flag_pull():
     accuTurn(-90)
     # goes to the basket-land
     await db.straight(50)
+    #raising table
+    await right.run_angle(500, 950)
+    #hits basket
     await left.run_angle(500, -500)
     await left.run_angle(500, 500)
-    await right.run_angle(500, 1000)
-    await db.straight(-300)
-   
+    await right.run_angle(500, -950)
+    await db.straight(-250)
+    accuTurn(0)
+    await db.straight(500)
+    await db.stop()
     
 async def scissors():
     db.reset()
@@ -96,11 +87,12 @@ async def scissors():
     await db.straight(-100)
     #turns to another mission
     accuTurn(4)
+    #waits
     wait(30)
     #extends the scissor
     await right.run_angle(400,300)
     
-     #timed base turn
+    #timed base turn
     db.drive(0, -500)
     #waits that long before running stoppinjg
     await wait(700) 
@@ -130,6 +122,7 @@ async def scissors():
         left.run_angle(500, -500),
         db.straight(-700)
     )
+    await db.stop()
 
 async def sandy():
     db.use_gyro( True )
@@ -141,9 +134,9 @@ async def sandy():
     
     #grind into the sunken ship
     await wait( 500 )
-    db.drive(100,7)
+    await db.drive(100,15)
     await wait( 1200 )
-    db.stop()
+    await db.stop()
 
     #drop the slide / grab the red arm
     await right.run_angle(500, -340)
@@ -155,6 +148,8 @@ async def sandy():
     #back to base
     await db.straight( -500 )
 
+    await db.stop()
+
 
 # run_task(sandy())
 
@@ -163,6 +158,10 @@ async def trident_pt_1():
     await db.straight( -175 )
     await left.run_angle( 500, -360*1.5 )
     await db.straight(-700)
+    await db.stop()
+
+
+
 
 async def trident_pt_2():
     await db.straight( 800 )
@@ -174,5 +173,94 @@ async def trident_pt_2():
     await right.run_angle( 500, -360*6 )
     await db.curve( -250, -70, Stop.NONE)
     await db.straight( -600 )
+    await db.stop()
 
-run_task(flag_pull())
+
+
+
+async def boom():
+    #goes forward
+    await db.straight(250)
+    #repeats the same proccess 3 times(boo), hammering the silo
+    for uytuyt in "boo":
+        await right.run_angle(-900, 150)
+        await right.run_angle(900, 150)
+        #goes backwards to the starting point
+    await db.straight(-300)
+    await db.stop()
+
+
+
+
+async def mission7():
+    #goes forward
+    await db.straight(630)
+    #turns
+    await db.turn(45)
+    #goes forward
+    await db.straight(45)
+    #lowers arm to pick up the well-thingy
+    await left.run_angle(-500,500)
+    #moves forward to get closer to it
+    await db.straight(20)
+    await db.stop()
+
+
+
+
+
+async def theFinalMission():
+    await right.run_angle(500,-300)
+    #going straight
+    await db.straight(1000)
+    #turns
+    await db.turn(45)
+    # #lifts fossil-thing up a little bit
+    # await right.run_angle(270,100)
+    # #turns
+    # await multitask(
+    #     db.turn(45),
+    #     right.run_angle(300,300)
+    # )
+
+
+
+
+
+# given abcd, and b, return bcda
+def move_to_front(my_list, value):
+    index = my_list.index(value)
+    shifted_list = my_list[index:] + my_list[:index]
+    return shifted_list
+
+missions = ["8", "2", "3","4","5","X","7","1"]
+while True:
+    # Print battery voltage in millivolts
+    voltage = hub.battery.voltage()
+    print(f"Battery voltage: {voltage} mV")
+
+    selected = hub_menu( *missions )
+    if selected == "1":
+        run_task(sandy())
+        missions = move_to_front(missions, "2")
+    if selected == "2":
+        run_task(trident_pt_1())
+        missions = move_to_front(missions, "3")
+    if selected == "3":
+        run_task(trident_pt_2())
+        missions = move_to_front(missions, "4")
+    if selected == "4":
+        run_task(flag_pull())
+        missions = move_to_front(missions, "5")
+    if selected == "5":
+        run_task(scissors())
+        missions = move_to_front(missions, "X")
+    if selected == "X":
+        run_task(boom())
+        missions == move_to_front(missions, "7")
+    if selected == "7":
+        run_task(mission7())
+        missions == move_to_front(missions, "8")
+    if selected == "8":
+        run_task(theFinalMission())
+        missions == move_to_front(missions, "1")        
