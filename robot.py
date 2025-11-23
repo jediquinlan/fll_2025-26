@@ -181,10 +181,10 @@ async def trident_pt_2():
 async def boom():
     #goes forward
     await db.straight(250)
-    #repeats the same proccess 3 times(boo), hammering the silo
-    for uytuyt in "boo":
-        await right.run_angle(-900, 150)
-        await right.run_angle(900, 150)
+    #repeats the same proccess 4 times(boom), hammering the silo
+    for four_times_cause_four_letters_in_boom in "boo":
+        await right.run_time(-500, 1000 )
+        await right.run_time(500, 1000 )
         #goes backwards to the starting point
     await db.straight(-300)
     await db.stop()
@@ -192,17 +192,19 @@ async def boom():
 
 
 
-async def mission7():
+async def stone_slab():
+    db.reset()
     #goes forward
     await db.straight(630)
     #turns
-    await db.turn(45)
-    #goes forward
-    await db.straight(45)
-    #lowers arm to pick up the well-thingy
+    accuTurn( 45 )
+
+    #lowers arm to smack the well-thingy
     await left.run_angle(-500,500)
-    #moves forward to get closer to it
-    await db.straight(20)
+    await db.turn( 45 )
+    await left.run_angle(500,500)
+    await db.turn(90)
+    await db.straight(1000)
     await db.stop()
 
 
@@ -215,6 +217,8 @@ async def theFinalMission():
     await db.straight(1000)
     #turns
     await db.turn(45)
+    await db.straignt(-200)
+    await db.stop()
     # #lifts fossil-thing up a little bit
     # await right.run_angle(270,100)
     # #turns
@@ -233,7 +237,7 @@ def move_to_front(my_list, value):
     shifted_list = my_list[index:] + my_list[:index]
     return shifted_list
 
-missions = ["8", "2", "3","4","5","X","7","1"]
+missions = ["7", "2", "3","4","5","X","7","1"]
 while True:
     # Print battery voltage in millivolts
     voltage = hub.battery.voltage()
@@ -259,7 +263,7 @@ while True:
         run_task(boom())
         missions == move_to_front(missions, "7")
     if selected == "7":
-        run_task(mission7())
+        run_task(stone_slab() )
         missions == move_to_front(missions, "8")
     if selected == "8":
         run_task(theFinalMission())
