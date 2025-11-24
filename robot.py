@@ -49,28 +49,38 @@ def accuTurn(target_angle, tolerance=0.25, speed=80):
 
 def dbResetSettings( ):
     db.settings( *db_def_settings )
+    db.reset()
 
 
 
 
 
 async def flag_pull():
+    db.reset()
     await db.straight(1212)
     #turning
     accuTurn(-90)
     # goes to the basket-land
     await db.straight(50)
     #raising table
-    await right.run_angle(500, 950)
+    await right.run_angle(500, 900)
     #hits basket
     await left.run_angle(500, -500)
+    #lifts arm back up
     await left.run_angle(500, 500)
-    await right.run_angle(500, -950)
+    #lifts the other arm back up
+    await right.run_angle(500, -500)
+    #backs up
     await db.straight(-250)
+    #turns back to 0, facing towards the corner
     accuTurn(0)
+    #enters the corner
     await db.straight(500)
-    await db.stop()
+    db.stop()
     
+
+
+
 async def scissors():
     db.reset()
     #curves to an angle
@@ -113,8 +123,7 @@ async def scissors():
     await left.run_angle(500, 720)
     #backs up to lift the structure off the ground
     await db.straight(-250)
-    #moves slightly forward
-    # await db.straight(100)
+
     #turns away form the mission
     await db.turn(50)
     #multitasks: brings the rubber arm back to its origin spot, backs up to starting point
@@ -122,21 +131,22 @@ async def scissors():
         left.run_angle(500, -500),
         db.straight(-700)
     )
-    await db.stop()
+    db.stop()
 
 async def sandy():
+    db.reset()
     db.use_gyro( True )
     #move toward the ship
     await db.straight( 500 )
     
     #make sure we are facing the ship head on
-    accuTurn(0, 0.1)
+    # accuTurn(0, 0.1)
     
     #grind into the sunken ship
     await wait( 500 )
-    await db.drive(100,15)
+    db.drive(100,15)
     await wait( 1200 )
-    await db.stop()
+    db.stop()
 
     #drop the slide / grab the red arm
     await right.run_angle(500, -340)
@@ -148,22 +158,22 @@ async def sandy():
     #back to base
     await db.straight( -500 )
 
-    await db.stop()
+    db.stop()
 
 
 # run_task(sandy())
 
 async def trident_pt_1():
+    db.reset()
     await db.straight( 700 )
     await db.straight( -175 )
     await left.run_angle( 500, -360*1.5 )
     await db.straight(-700)
-    await db.stop()
-
-
+    db.stop()
 
 
 async def trident_pt_2():
+    db.reset()
     await db.straight( 800 )
     accuTurn( -45 )
     await db.straight( -100 )
@@ -173,21 +183,19 @@ async def trident_pt_2():
     await right.run_angle( 500, -360*6 )
     await db.curve( -250, -70, Stop.NONE)
     await db.straight( -600 )
-    await db.stop()
-
-
-
+    db.stop()
 
 async def boom():
+    db.reset()
     #goes forward
-    await db.straight(250)
+    await db.straight(260)
     #repeats the same proccess 4 times(boom), hammering the silo
     for four_times_cause_four_letters_in_boom in "boo":
         await right.run_time(-500, 1000 )
         await right.run_time(500, 1000 )
         #goes backwards to the starting point
     await db.straight(-300)
-    await db.stop()
+    db.stop()
 
 
 
@@ -205,27 +213,22 @@ async def stone_slab():
     await left.run_angle(500,500)
     await db.turn(90)
     await db.straight(1000)
-    await db.stop()
+    db.stop()
 
 
 
 
 
 async def theFinalMission():
-    await right.run_angle(500,-300)
+    db.reset()
+    await right.run_angle(500,-350)
     #going straight
     await db.straight(1000)
     #turns
-    await db.turn(45)
-    await db.straignt(-200)
-    await db.stop()
-    # #lifts fossil-thing up a little bit
-    # await right.run_angle(270,100)
-    # #turns
-    # await multitask(
-    #     db.turn(45),
-    #     right.run_angle(300,300)
-    # )
+    await db.turn(25)
+    await db.straight(-200)
+    await right.run_angle(500,350)
+    db.stop()
 
 
 
@@ -237,7 +240,7 @@ def move_to_front(my_list, value):
     shifted_list = my_list[index:] + my_list[:index]
     return shifted_list
 
-missions = ["7", "2", "3","4","5","X","7","1"]
+missions = ["1", "2", "3", "4", "5", "X", "7", "8"]
 while True:
     # Print battery voltage in millivolts
     voltage = hub.battery.voltage()
