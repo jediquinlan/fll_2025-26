@@ -15,6 +15,7 @@ db = DriveBase(lw, rw, wheel_diameter=WHEEL_DIAMETER, axle_track=AXLE_TRACK)
 db.use_gyro(True)
 left = Motor(Port.C)
 right = Motor(Port.B)
+db_def_settings = db.settings()
 
 def accuTurn(target_angle, tolerance=0.25, speed=80):
     while True:
@@ -167,16 +168,28 @@ async def mega_trident():
     db.reset()
     await db.straight( 800 )
     accuTurn( -45 )
-    await db.straight( -110 )
-    await right.run_angle( 500, -360*3.2 )
+    await multitask(
+        db.straight( -110 ),
+        right.run_angle( 500, 360*3.5 )
+    )
     await db.straight( 150 )
-    await db.straight( -55 )
+    await db.straight( -65 )
+    await right.run_angle( 500, -360*3 )
+    db.settings(100)
+    accuTurn(75,0.1)
+    await db.straight(-70)
     await right.run_angle( 500, 360*3.2 )
-    accuTurn(76,0.1)
-    await db.straight(-50)
-    await right.run_angle( 500, -360*3.2 )
-    await db.straight(75)
-    await right.run_angle( 500, 360*3.2 )
+    await db.straight(100)
+    # await db.straight(75)
+    await right.run_angle( 500, -360*3.5 )
+    await db.straight(-80)
+    accuTurn(0)
+    await wait(500)
+    await db.straight(-200)
+    db.settings(300)
+    await left.run_angle(500,-360*1.8)
+    await db.straight(-800)
+    dbResetSettings()
 
     db.stop()
 
@@ -227,42 +240,41 @@ async def theFinalMission():
 
 
 
-run_task(mega_trident())
+
 
 # given abcd, and b, return bcda
-# def move_to_front(my_list, value):
-#     index = my_list.index(value)
-#     shifted_list = my_list[index:] + my_list[:index]
-#     return shifted_list
+def move_to_front(my_list, value):
+    index = my_list.index(value)
+    shifted_list = my_list[index:] + my_list[:index]
+    return shifted_list
 
-# missions = ["1", "2", "3", "4", "5", "X", "7", "8"]
-# while True:
-#     # Print battery voltage in millivolts
-#     voltage = hub.battery.voltage()
-#     print(f"Battery voltage: {voltage} mV")
+missions = ["1", "2", "3", "4", "5", "X", "7", "8"]
+while True:
+    # Print battery voltage in millivolts
+    voltage = hub.battery.voltage()
+    print(f"Battery voltage: {voltage} mV")
 
-#     selected = hub_menu( *missions )
-#     if selected == "1":
-#         run_task(sandy())
-#         missions = move_to_front(missions, "2")
-#     if selected == "2":
-#         run_task(trident_pt_1())
-#         missions = move_to_front(missions, "3")
-#     if selected == "3":
-#         run_task(trident_pt_2())
-#         missions = move_to_front(missions, "4")
-#     if selected == "4":
-#         run_task(flag_pull())
-#         missions = move_to_front(missions, "5")
-#     if selected == "5":
-#         run_task(scissors())
-#         missions = move_to_front(missions, "X")
-#     if selected == "X":
-#         run_task(boom())
-#         missions == move_to_front(missions, "7")
-#     if selected == "7":
-#         run_task(stone_slab() )
-#         missions == move_to_front(missions, "8")
-#     if selected == "8":
-#         run_task(theFinalMission())
-#         missions == move_to_front(missions, "1")        
+    selected = hub_menu( *missions )
+    if selected == "1":
+        run_task(mega_trident())
+        missions = move_to_front(missions, "2")
+    if selected == "2":
+        run_task(sandy())
+        missions = move_to_front(missions, "2")
+    if selected == "3":
+        run_task(flag_pull())
+        missions = move_to_front(missions, "4")
+    if selected == "4":
+        run_task(scissors())
+        missions = move_to_front(missions, "X")
+    if selected == "X":
+        run_task(boom())
+        missions == move_to_front(missions, "6")
+    if selected == "6":
+        run_task(stone_slab() )
+        missions == move_to_front(missions, "7")
+    if selected == "7":
+        run_task(theFinalMission())
+        missions == move_to_front(missions, "1")        
+
+# left.run_angle(500,-360)
