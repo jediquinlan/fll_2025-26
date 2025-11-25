@@ -17,7 +17,7 @@ left = Motor(Port.C)
 right = Motor(Port.B)
 db_def_settings = db.settings()
 
-def accuTurn(target_angle, tolerance=0.25, speed=80):
+async def accuTurn(target_angle, tolerance=0.25, speed=80):
     while True:
         current_angle = hub.imu.heading()
         angle_difference = target_angle - current_angle
@@ -45,7 +45,7 @@ def accuTurn(target_angle, tolerance=0.25, speed=80):
         direction = speed if clockwise else -speed
         db.drive(0, direction)
     
-    wait( 500 )
+    await wait( 100 )
     print( 'post', hub.imu.heading() )
 
 def dbResetSettings( ):
@@ -233,17 +233,25 @@ async def stone_slab():
 
 
 async def theFinalMission():
+    deg = 17
     db.reset()
-    accuTurn( 15, 0.01 )
-    await multitask(
-        right.run_angle(500,-350),
-        db.straight(1050)
-    )
-    #turns
-    await db.turn(30)
-    await accuTurb(15)
-    await db.straight(-200)
-    await right.run_angle(500,350)
+
+    print( db.settings() )
+    db.settings( None, 30 )
+
+    await accuTurn( deg, 0.05, speed = 50 )
+    await right.run_angle(500,-350),
+    await db.straight(100,Stop.NONE)
+    db.settings( *db_def_settings )
+    await db.straight(950)
+    # #turns
+    # await db.turn(30)
+    # await accuTurn(deg),
+    # await right.run_angle(500,350)
+    # await db.curve( -340, -59 )
+    # await db.turn( -20 )
+    # await left.run_time( 500, 4000 )
+
     db.stop()
 
 
