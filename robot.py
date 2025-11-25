@@ -58,25 +58,26 @@ def dbResetSettings( ):
 
 async def flag_pull():
     db.reset()
-    await db.straight(1212)
+    await db.straight(1200)
     #turning
     accuTurn(-90)
     # goes to the basket-land
+    db.settings(50)
     await db.straight(50)
-    #raising table
-    await right.run_angle(500, 900)
-    #hits basket
-    await left.run_angle(500, -500)
-    #lifts arm back up
-    await left.run_angle(500, 500)
-    #lifts the other arm back up
-    await right.run_angle(500, -500)
-    #backs up
-    await db.straight(-250)
-    #turns back to 0, facing towards the corner
-    accuTurn(0)
-    #enters the corner
-    await db.straight(500)
+    db.settings(200)
+    # raising table
+    await multitask(
+        right.run_angle(500, 850),
+        left.run_angle(200, -450)
+    )
+    # lifts arm back up
+    await multitask(
+        left.run_angle(500, 300),
+        right.run_angle(500, -500)
+    )
+    await db.straight(-25,Stop.NONE)
+    await db.curve(-80,75,Stop.NONE)
+    await db.straight(-500)
     db.stop()
     
 
@@ -166,26 +167,30 @@ async def sandy():
 
 async def mega_trident():
     db.reset()
-    await db.straight( 800 )
+    await multitask(
+        db.straight( 800 ),
+        right.run_angle( 500, 360*1.5 )
+    )
     accuTurn( -45 )
     await multitask(
         db.straight( -110 ),
-        right.run_angle( 500, 360*3.5 )
+        right.run_angle( 500, 360*2 )
     )
     await db.straight( 150 )
     await db.straight( -65 )
     await right.run_angle( 500, -360*3 )
-    db.settings(100)
-    accuTurn(75,0.1)
-    await db.straight(-70)
+    accuTurn(95,0.1)
+    # await db.straight(-74)
     await right.run_angle( 500, 360*3.2 )
-    await db.straight(100)
+    await db.straight(40)
     # await db.straight(75)
+    accuTurn(85)
     await right.run_angle( 500, -360*3.5 )
-    await db.straight(-80)
+    accuTurn(90)
+    await db.straight(-100)
     accuTurn(0)
     await wait(500)
-    await db.straight(-200)
+    await db.straight(-215)
     db.settings(300)
     await left.run_angle(500,-360*1.8)
     await db.straight(-800)
@@ -229,11 +234,14 @@ async def stone_slab():
 
 async def theFinalMission():
     db.reset()
-    await right.run_angle(500,-350)
-    #going straight
-    await db.straight(1000)
+    accuTurn( 15, 0.01 )
+    await multitask(
+        right.run_angle(500,-350),
+        db.straight(1050)
+    )
     #turns
-    await db.turn(25)
+    await db.turn(30)
+    await accuTurb(15)
     await db.straight(-200)
     await right.run_angle(500,350)
     db.stop()
@@ -248,7 +256,7 @@ def move_to_front(my_list, value):
     shifted_list = my_list[index:] + my_list[:index]
     return shifted_list
 
-missions = ["1", "2", "3", "4", "5", "X", "7", "8"]
+missions = ["1", "2", "3", "4", "5", "X", "7"]
 while True:
     # Print battery voltage in millivolts
     voltage = hub.battery.voltage()
@@ -276,5 +284,3 @@ while True:
     if selected == "7":
         run_task(theFinalMission())
         missions == move_to_front(missions, "1")        
-
-# left.run_angle(500,-360)
