@@ -60,7 +60,7 @@ async def flag_pull():
     db.reset()
     await db.straight(1200)
     #turning
-    accuTurn(-90)
+    await accuTurn(-90)
     # goes to the basket-land
     db.settings(50)
     await db.straight(50)
@@ -98,7 +98,7 @@ async def scissors():
     #goes backward
     await db.straight(-100)
     #turns to another mission
-    accuTurn(4)
+    await accuTurn(4)
     #waits
     wait(30)
     #extends the scissor
@@ -120,7 +120,7 @@ async def scissors():
     #closes the scissor a little bit
     await right.run_angle(400,-200)
     #accute turns to the final mission we are doing for this run
-    accuTurn(-51)
+    await accuTurn(-51)
     #lowers the rubber arm onto the table
     await left.run_angle(500, 720)
     #backs up to lift the structure off the ground
@@ -142,7 +142,7 @@ async def sandy():
     await db.straight( 500 )
     
     #make sure we are facing the ship head on
-    # accuTurn(0, 0.1)
+    # await (0, 0.1)
     
     #grind into the sunken ship
     await wait( 500 )
@@ -167,28 +167,25 @@ async def sandy():
 
 async def mega_trident():
     db.reset()
-    await multitask(
-        db.straight( 800 ),
-        right.run_angle( 500, 360*1.5 )
-    )
-    accuTurn( -45 )
+    await db.straight( 800 ),
+    await accuTurn( -45 )
     await multitask(
         db.straight( -110 ),
-        right.run_angle( 500, 360*2 )
+        right.run_angle( 500, 360*3.5 )
     )
     await db.straight( 150 )
     await db.straight( -65 )
     await right.run_angle( 500, -360*3 )
-    accuTurn(95,0.1)
+    await accuTurn(95,0.1)
     # await db.straight(-74)
     await right.run_angle( 500, 360*3.2 )
     await db.straight(40)
     # await db.straight(75)
-    accuTurn(85)
+    await accuTurn(85)
     await right.run_angle( 500, -360*3.5 )
-    accuTurn(90)
+    await accuTurn(90)
     await db.straight(-100)
-    accuTurn(0)
+    await accuTurn(0)
     await wait(500)
     await db.straight(-215)
     db.settings(300)
@@ -218,7 +215,7 @@ async def stone_slab():
     #goes forward
     await db.straight(630)
     #turns
-    accuTurn( 45 )
+    await accuTurn( 45 )
 
     #lowers arm to smack the well-thingy
     await left.run_angle(-500,500)
@@ -244,13 +241,13 @@ async def theFinalMission():
     await db.straight(100,Stop.NONE)
     db.settings( *db_def_settings )
     await db.straight(950)
-    # #turns
-    # await db.turn(30)
-    # await accuTurn(deg),
-    # await right.run_angle(500,350)
-    # await db.curve( -340, -59 )
-    # await db.turn( -20 )
-    # await left.run_time( 500, 4000 )
+    await db.turn(30)
+    await left.run_time( 500, 1000 )
+    await accuTurn(deg),
+    await right.run_angle(500,350)
+    await db.curve( -340, -59 )
+    await db.turn( -20 )
+    await left.run_time( 500, 4000 )
 
     db.stop()
 
