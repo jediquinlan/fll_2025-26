@@ -91,49 +91,118 @@ async def scissors():
         #heads forward more
         db.straight(240),
         #expands the scissor to put the flag in spot
-        right.run_angle(300,505)
+        right.run_angle(200,505)
     )
     #closes the scissors
     await right.run_angle(400,-550)
+
     #goes backward
-    await db.straight(-100)
-    #turns to another mission
-    await accuTurn(4)
-    #waits
-    wait(30)
-    #extends the scissor
-    await right.run_angle(400,300)
-    
-    #timed base turn
-    db.drive(0, -500)
-    #waits that long before running stoppinjg
-    await wait(700) 
-    #stops the turning
+    await db.straight(-155)
+
+    #straighten out and back up and extend scissors
+    await accuTurn(0)
+    await multitask(
+        db.straight( -130 ), 
+        right.run_angle( 500, 505 )
+    )
+
+    #release the boulders
+    db.drive(0,500 )
+    await wait( 500 )
     db.stop()
-    #closes scissor
-    await right.run_angle(400,-140)
-    #turns to the next mission
-    db.drive(0, 500)
-    #wait
+    await db.straight(-30)
+    await accuTurn(8)
+    db.settings(None, 100)
+    # await db.straight(85)
+    await db.straight( 70 )
+
+    db.settings(*db_def_settings)
+
+    #slam table to the left
+    db.drive(0,-500)
     await wait(500)
     db.stop()
-    #closes the scissor a little bit
-    await right.run_angle(400,-200)
-    #accute turns to the final mission we are doing for this run
-    await accuTurn(-51)
-    #lowers the rubber arm onto the table
-    await left.run_angle(500, 720)
-    #backs up to lift the structure off the ground
-    await db.straight(-250)
 
-    #turns away form the mission
-    await db.turn(50)
-    #multitasks: brings the rubber arm back to its origin spot, backs up to starting point
-    await multitask(
-        left.run_angle(500, -500),
-        db.straight(-700)
-    )
+    # pull back
+    await right.run_angle(500, -505)
+
+    #center up
+    await accuTurn(0)
+    
+
+    await db.straight( 150 )
+    await accuTurn( 45 )
+    
+    #knock the stone off
+    # await db.curve( 361, 40, Stop.BRAKE )
+    # # #arm down
+    await left.run_angle(500, 390)
+    
+
+
+
     db.stop()
+    
+    #extends the scissor
+    # await right.run_angle(400,300)
+    
+    # #timed base turn
+    # db.drive(0, -500)
+    # #waits that long before running stoppinjg
+    # await wait(700) 
+    # #stops the turning
+    # db.stop()
+    # #closes scissor to hit boulder
+    # await right.run_angle(400,-140)
+
+    # #turns to the boulders
+    # db.drive(0, 500)
+    # #wait
+    # await wait(500)
+    # db.stop()
+
+    # await accuTurn( 0 )
+    
+    #closes the scissor a little bit
+    # await right.run_angle(400,-400)
+
+    #straight toward back
+    # await accuTurn( 0 )
+    # await db.straight( 300 )
+
+    # #face the stone (behind the boulders)
+    # await accuTurn( 45 )
+    # await db.straight( 100 )
+    # await left.run_angle(500, 720)
+
+    # #slap the stone 
+    # db.drive(0, 500)
+    # await wait(500)
+    # db.stop()
+
+    # #arm back up
+    # await left.run_angle(-500, 720)
+
+    # #face the right wall
+    # accuTurn( 90 )
+
+
+
+    # #accute turns to the final mission we are doing for this run
+    # await accuTurn(-51)
+    # #lowers the rubber arm onto the table
+    # await left.run_angle(500, 720)
+    #backs up to lift the structure off the ground
+    # await db.straight(-250)
+
+    # #turns away form the mission
+    # await db.turn(50)
+    # #multitasks: brings the rubber arm back to its origin spot, backs up to starting point
+    # await multitask(
+    #     left.run_angle(500, -500),
+    #     db.straight(-700)
+    # )
+    # db.stop()
 
 async def sandy():
     db.reset()
@@ -261,7 +330,7 @@ def move_to_front(my_list, value):
     shifted_list = my_list[index:] + my_list[:index]
     return shifted_list
 
-missions = ["1", "2", "3", "4", "5", "X", "7"]
+missions = ["1", "2", "3", "4", "X", "7"]
 while True:
     # Print battery voltage in millivolts
     voltage = hub.battery.voltage()
@@ -288,4 +357,7 @@ while True:
         missions == move_to_front(missions, "7")
     if selected == "7":
         run_task(theFinalMission())
-        missions == move_to_front(missions, "1")        
+        missions == move_to_front(missions, "1")
+
+
+# run_task( left.run_angle(500, 390) )
