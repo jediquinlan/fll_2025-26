@@ -114,7 +114,7 @@ async def scissors():
     await accuTurn(8)
     db.settings(None, 100)
     # await db.straight(85)
-    await db.straight( 70 )
+    await db.straight( 80 )
 
     db.settings(*db_def_settings)
 
@@ -129,19 +129,42 @@ async def scissors():
     #center up
     await accuTurn(0)
     
-
-    await db.straight( 150 )
-    await accuTurn( 45 )
-    
     #knock the stone off
-    # await db.curve( 361, 40, Stop.BRAKE )
-    # # #arm down
+    await db.curve( 361, 40, Stop.BRAKE )
+    #arm down
     await left.run_angle(500, 390)
     
+    #slam the stone
+    await db.turn( 30 )
+    db.stop( )
+    
+    #push boulders and stone in
+    await accuTurn( 50 )
+    await multitask(
+        right.run_angle(500, 505),
+        left.run_angle(500, -390)
+    )
+    await right.run_angle(500, -505)
+    
+    #back up to face the table
+    await db.curve( -300, 82 )
 
-
-
+    # approach the table
+    await db.straight( 180 )
+    await left.run_angle(500, 420)
+    await db.straight( -170 )
+    await db.straight(40)
+    await db.turn(-25)
+    await multitask(
+        db.straight(-1000),
+        left.run_angle(500, -420)
+    )
     db.stop()
+
+
+
+
+
     
     #extends the scissor
     # await right.run_angle(400,300)
@@ -279,20 +302,7 @@ async def boom():
 
 
 
-async def stone_slab():
-    db.reset()
-    #goes forward
-    await db.straight(630)
-    #turns
-    await accuTurn( 45 )
 
-    #lowers arm to smack the well-thingy
-    await left.run_angle(-500,500)
-    await db.turn( 45 )
-    await left.run_angle(500,500)
-    await db.turn(90)
-    await db.straight(1000)
-    db.stop()
 
 
 
@@ -312,14 +322,22 @@ async def theFinalMission():
     await db.straight(950)
     await db.turn(30)
     await left.run_time( 500, 1000 )
-    await accuTurn(deg),
+    await accuTurn(deg)
     await right.run_angle(500,350)
-    await db.curve( -340, -59 )
-    await db.turn( -20 )
-    await left.run_time( 500, 4000 )
-
+    await db.straight( -250 )
+    await accuTurn( 90 )
+    db.settings( 50 )
+    await db.straight( -165 )
+    db.drive(0,-50)
+    await wait(500)
     db.stop()
-
+    await left.run_time( 500, 3200 )
+    db.settings(*db_def_settings)
+    await db.straight( 200 )
+    await db.turn(-50)
+    db.settings( 500 )
+    await db.straight(-1000)
+    db.stop()
 
 
 
