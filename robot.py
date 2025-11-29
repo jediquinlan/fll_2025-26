@@ -288,17 +288,14 @@ async def mega_trident():
     db.stop()
 
 async def boom():
-    db.reset()
-    #goes forward
-    await db.straight(260)
-    #repeats the same proccess 4 times(boom), hammering the silo
-    for four_times_cause_four_letters_in_boom in "boo":
-        await right.run_time(-500, 1000 )
-        await right.run_time(500, 1000 )
-        #goes backwards to the starting point
-    await db.straight(-300)
-    db.stop()
-
+    db.settings( turn_acceleration=50 )
+    await db.turn( 30 )
+    await wait( 500 )
+    db.settings( straight_speed=500, straight_acceleration=500, turn_acceleration=500 )
+    await db.turn( 90 )
+    await db.straight( 200 )
+    await db.straight( -100 )
+    db.stop( )
 
 
 
@@ -311,11 +308,9 @@ async def boom():
 async def theFinalMission():
     deg = 17
     db.reset()
-
-    print( db.settings() )
     db.settings( None, 30 )
-
     await accuTurn( deg, 0.05, speed = 50 )
+
     await right.run_angle(500,-350),
     await db.straight(100,Stop.NONE)
     db.settings( *db_def_settings )
@@ -348,7 +343,7 @@ def move_to_front(my_list, value):
     shifted_list = my_list[index:] + my_list[:index]
     return shifted_list
 
-missions = ["1", "2", "3", "4", "X", "7"]
+missions = ["1", "2", "3", "4", "5", "6"]
 while True:
     # Print battery voltage in millivolts
     voltage = hub.battery.voltage()
@@ -360,22 +355,17 @@ while True:
         missions = move_to_front(missions, "2")
     if selected == "2":
         run_task(sandy())
-        missions = move_to_front(missions, "2")
+        missions = move_to_front(missions, "3")
     if selected == "3":
         run_task(flag_pull())
         missions = move_to_front(missions, "4")
     if selected == "4":
         run_task(scissors())
-        missions = move_to_front(missions, "X")
-    if selected == "X":
+        missions = move_to_front(missions, "5")
+    if selected == "5":
         run_task(boom())
         missions == move_to_front(missions, "6")
     if selected == "6":
-        run_task(stone_slab() )
-        missions == move_to_front(missions, "7")
-    if selected == "7":
         run_task(theFinalMission())
         missions == move_to_front(missions, "1")
 
-
-# run_task( left.run_angle(500, 390) )
