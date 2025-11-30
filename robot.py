@@ -58,7 +58,9 @@ def dbResetSettings( ):
 
 async def flag_pull():
     db.reset()
+    db.settings(500)
     await db.straight(1200)
+    db.settings(*db_def_settings)
     #turning
     await accuTurn(-90)
     # goes to the basket-land
@@ -77,7 +79,9 @@ async def flag_pull():
     )
     await db.straight(-25,Stop.NONE)
     await db.curve(-80,75,Stop.NONE)
-    await db.straight(-500)
+    db.settings(500)
+    await db.straight(-800)
+    dbResetSettings()
     db.stop()
     
 
@@ -85,6 +89,7 @@ async def flag_pull():
 
 async def scissors():
     db.reset()
+    dbResetSettings()
     #curves to an angle
     await db.curve(475,-40.2, Stop.NONE)
     await multitask(
@@ -156,7 +161,7 @@ async def scissors():
     await db.straight(40)
     await db.turn(-25)
     await multitask(
-        db.straight(-1000),
+        db.straight(-500),
         left.run_angle(500, -420)
     )
     db.stop()
@@ -164,68 +169,6 @@ async def scissors():
 
 
 
-
-    
-    #extends the scissor
-    # await right.run_angle(400,300)
-    
-    # #timed base turn
-    # db.drive(0, -500)
-    # #waits that long before running stoppinjg
-    # await wait(700) 
-    # #stops the turning
-    # db.stop()
-    # #closes scissor to hit boulder
-    # await right.run_angle(400,-140)
-
-    # #turns to the boulders
-    # db.drive(0, 500)
-    # #wait
-    # await wait(500)
-    # db.stop()
-
-    # await accuTurn( 0 )
-    
-    #closes the scissor a little bit
-    # await right.run_angle(400,-400)
-
-    #straight toward back
-    # await accuTurn( 0 )
-    # await db.straight( 300 )
-
-    # #face the stone (behind the boulders)
-    # await accuTurn( 45 )
-    # await db.straight( 100 )
-    # await left.run_angle(500, 720)
-
-    # #slap the stone 
-    # db.drive(0, 500)
-    # await wait(500)
-    # db.stop()
-
-    # #arm back up
-    # await left.run_angle(-500, 720)
-
-    # #face the right wall
-    # accuTurn( 90 )
-
-
-
-    # #accute turns to the final mission we are doing for this run
-    # await accuTurn(-51)
-    # #lowers the rubber arm onto the table
-    # await left.run_angle(500, 720)
-    #backs up to lift the structure off the ground
-    # await db.straight(-250)
-
-    # #turns away form the mission
-    # await db.turn(50)
-    # #multitasks: brings the rubber arm back to its origin spot, backs up to starting point
-    # await multitask(
-    #     left.run_angle(500, -500),
-    #     db.straight(-700)
-    # )
-    # db.stop()
 
 async def sandy():
     db.reset()
@@ -282,19 +225,18 @@ async def mega_trident():
     await db.straight(-215)
     db.settings(300)
     await left.run_angle(500,-360*1.8)
-    await db.straight(-800)
+    await db.curve(-800,-45)
     dbResetSettings()
 
     db.stop()
 
 async def boom():
     db.settings( turn_acceleration=50 )
-    await db.turn( 30 )
+    await db.straight( 100 )
     await wait( 500 )
-    db.settings( straight_speed=500, straight_acceleration=500, turn_acceleration=500 )
-    await db.turn( 90 )
+    await db.turn(45)
     await db.straight( 200 )
-    await db.straight( -100 )
+    await db.straight( -150 )
     db.stop( )
 
 
@@ -308,30 +250,33 @@ async def boom():
 async def theFinalMission():
     deg = 17
     db.reset()
-    db.settings( None, 30 )
+    db.settings( None, 100 )
     await accuTurn( deg, 0.05, speed = 50 )
 
     await right.run_angle(500,-350),
     await db.straight(100,Stop.NONE)
     db.settings( *db_def_settings )
-    await db.straight(950)
-    await db.turn(30)
+    await db.straight(965)
+    db.drive(0,500)
+    await wait(500)
+    db.stop()
     await left.run_time( 500, 1000 )
     await accuTurn(deg)
     await right.run_angle(500,350)
-    await db.straight( -250 )
+    await db.straight( -270 )
     await accuTurn( 90 )
-    db.settings( 50 )
-    await db.straight( -165 )
+    db.settings( 110 )
+    await db.straight(-175)
     db.drive(0,-50)
-    await wait(500)
+    await wait(800)
     db.stop()
-    await left.run_time( 500, 3200 )
+    await left.run_time( 500, 2000 )
     db.settings(*db_def_settings)
     await db.straight( 200 )
     await db.turn(-50)
     db.settings( 500 )
     await db.straight(-1000)
+    
     db.stop()
 
 
@@ -349,6 +294,8 @@ while True:
     voltage = hub.battery.voltage()
     print(f"Battery voltage: {voltage} mV")
 
+    dbResetSettings()
+
     selected = hub_menu( *missions )
     if selected == "1":
         run_task(mega_trident())
@@ -362,10 +309,10 @@ while True:
     if selected == "4":
         run_task(scissors())
         missions = move_to_front(missions, "5")
-    if selected == "5":
-        run_task(boom())
-        missions == move_to_front(missions, "6")
     if selected == "6":
-        run_task(theFinalMission())
+        run_task(boom())
         missions == move_to_front(missions, "1")
+    if selected == "5":
+        run_task(theFinalMission())
+        missions == move_to_front(missions, "6")
 
