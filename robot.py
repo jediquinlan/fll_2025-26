@@ -17,6 +17,10 @@ left = Motor(Port.C)
 right = Motor(Port.B)
 db_def_settings = db.settings()
 
+def dbResetSettings( ):
+    db.settings( *db_def_settings )
+    db.reset()
+
 async def accuTurn(target_angle, tolerance=0.25, speed=80):
     while True:
         current_angle = hub.imu.heading()
@@ -39,7 +43,6 @@ async def accuTurn(target_angle, tolerance=0.25, speed=80):
         if (abs_angle_diff < 10):
             speed = 10
         
-
         # print( 'c', current_angle, 'd', angle_difference, 'speed', speed )
 
         direction = speed if clockwise else -speed
@@ -48,19 +51,19 @@ async def accuTurn(target_angle, tolerance=0.25, speed=80):
     await wait( 100 )
     print( 'post', hub.imu.heading() )
 
-def dbResetSettings( ):
-    db.settings( *db_def_settings )
-    db.reset()
-
-
-
-
 
 async def flag_pull():
-    db.reset()
-    db.settings(500)
-    await db.straight(1200)
+    await db.straight(580)
+    await right.run_angle(500,750)
+    await db.straight(-150)
+    db.settings(75)
+    await right.run_angle(500,-75)
+    await db.straight(300, Stop.NONE)
     db.settings(*db_def_settings)
+    await multitask(
+        right.run_angle(500,-600),
+        db.straight(470)
+    )
     #turning
     await accuTurn(-90)
     # goes to the basket-land
@@ -77,19 +80,13 @@ async def flag_pull():
         left.run_angle(500, 300),
         right.run_angle(500, -500)
     )
-    await db.straight(-25,Stop.NONE)
-    await db.curve(-80,75,Stop.NONE)
+    await db.straight(-35,Stop.NONE)
+    await db.curve(-60,75,Stop.NONE)
     db.settings(500)
     await db.straight(-800)
-    dbResetSettings()
     db.stop()
-    
-
-
 
 async def scissors():
-    db.reset()
-    dbResetSettings()
     #curves to an angle
     await db.curve(475,-40.2, Stop.NONE)
     await multitask(
@@ -118,7 +115,6 @@ async def scissors():
     await db.straight(-30)
     await accuTurn(8)
     db.settings(None, 100)
-    # await db.straight(85)
     await db.straight( 80 )
 
     db.settings(*db_def_settings)
@@ -160,6 +156,9 @@ async def scissors():
     await db.straight( -170 )
     await db.straight(40)
     await db.turn(-25)
+
+    #OPTIMIZE HERE - SPEED UP ON RETURN
+
     await multitask(
         db.straight(-500),
         left.run_angle(500, -420)
@@ -167,18 +166,11 @@ async def scissors():
     db.stop()
 
 
-
-
-
 async def sandy():
-    db.reset()
-    db.use_gyro( True )
     #move toward the ship
     await db.straight( 500 )
     
-    #make sure we are facing the ship head on
-    # await (0, 0.1)
-    
+
     #grind into the sunken ship
     await wait( 500 )
     db.drive(100,15)
@@ -197,90 +189,123 @@ async def sandy():
 
     db.stop()
 
-
-# run_task(sandy())
-
 async def mega_trident():
-    db.reset()
-    await db.straight( 800 ),
+    #move toward the trident & tip it 
+    await db.straight( 800 )
+    #turn toward the three green things
     await accuTurn( -45 )
+    #back up and drop our forklift
     await multitask(
         db.straight( -110 ),
         right.run_angle( 500, 360*3.5 )
     )
+    #advance and push
     await db.straight( 150 )
+
+    #back up a bit and lift up
+    #OPTIMIZE JOIN?
     await db.straight( -65 )
     await right.run_angle( 500, -360*3 )
+
+    #OPTIMIZE JOIN?
+    #OPTIMIZE TURN FAST, THEN ACCUTURN?
+    #turn toward the mine cart
     await accuTurn(95,0.1)
-    # await db.straight(-74)
+    #drop the arm
     await right.run_angle( 500, 360*3.2 )
+
+    #move arm under the mine cart
     await db.straight(40)
-    # await db.straight(75)
     await accuTurn(85)
+    #lift it up
     await right.run_angle( 500, -360*3.5 )
+
+    #straighten to perpendicular
     await accuTurn(90)
+    #back up
     await db.straight(-100)
+    #face theback wall
     await accuTurn(0)
+
+    #OPTIMIZE DROP THIS
     await wait(500)
+
+    #back up to hit the trident again
     await db.straight(-215)
-    db.settings(300)
+
+    #pick up the trident and drop the flag
     await left.run_angle(500,-360*1.8)
+
+    #quick back to home
+    db.settings( straight_speed=300, turn_rate=300)
     await db.curve(-800,-45)
-    dbResetSettings()
 
     db.stop()
 
 async def boom():
+    #just slowly slam the hammer
     db.settings( turn_acceleration=50 )
     await db.straight( 100 )
     await wait( 500 )
     await db.turn(45)
+    #and push it away
     await db.straight( 200 )
     await db.straight( -150 )
+
     db.stop( )
-
-
-
-
-
-
-
-
 
 async def theFinalMission():
     deg = 17
-    db.reset()
-    db.settings( None, 100 )
+    
+    #turn then drop the arm
     await accuTurn( deg, 0.05, speed = 50 )
-
     await right.run_angle(500,-350),
+
+    #accelerate slowly
+    db.settings( None, 100 )
     await db.straight(100,Stop.NONE)
+
+    #then keep on moving at normal speed
     db.settings( *db_def_settings )
     await db.straight(965)
+
+    #turn and push up the statue
     db.drive(0,500)
     await wait(500)
     db.stop()
+    #drop the stuff in the middle
     await left.run_time( 500, 1000 )
+
+    #make sure we have our original alignment
     await accuTurn(deg)
+    #put the arm down
     await right.run_angle(500,350)
+    #back up
     await db.straight( -270 )
+    #rear to the thing we need to lift up
     await accuTurn( 90 )
+    #slowly back up into the thing we need to lift
     db.settings( 110 )
     await db.straight(-175)
+    #push our spinner onto the gear
     db.drive(0,-50)
     await wait(800)
     db.stop()
+    #spin it to raise it up
     await left.run_time( 500, 2000 )
-    db.settings(*db_def_settings)
-    await db.straight( 200 )
-    await db.turn(-50)
+
+    #get away fast and come home
+    # db.settings(*db_def_settings)
+    # await db.straight( 200 )
+    # await db.turn(-50)
+    # db.settings( 500 )
+    # await db.straight(-1000)
+    
+    #last mission, just stop touching
     db.settings( 500 )
-    await db.straight(-1000)
+    await db.straight( 200 )
     
     db.stop()
-
-
-
 
 # given abcd, and b, return bcda
 def move_to_front(my_list, value):
@@ -295,6 +320,7 @@ while True:
     print(f"Battery voltage: {voltage} mV")
 
     dbResetSettings()
+    db.use_gyro( True )
 
     selected = hub_menu( *missions )
     if selected == "1":
