@@ -53,6 +53,7 @@ async def accuTurn(target_angle, tolerance=0.25, speed=80):
 
 
 async def flag_pull():
+    dbResetSettings()
     await db.straight(580)
     await right.run_angle(500,750)
     await db.straight(-150)
@@ -62,14 +63,14 @@ async def flag_pull():
     db.settings(*db_def_settings)
     await multitask(
         right.run_angle(500,-600),
-        db.straight(470)
+        db.straight(460)
     )
     #turning
     await accuTurn(-90)
-    # goes to the basket-land
-    db.settings(50)
-    await db.straight(50)
-    db.settings(200)
+    # goes to the basket-land hi
+    db.drive(100, 0)
+    await wait(700)
+    db.stop()
     # raising table
     await multitask(
         right.run_angle(500, 850),
@@ -87,6 +88,7 @@ async def flag_pull():
     db.stop()
 
 async def scissors():
+    dbResetSettings()
     #curves to an angle
     await db.curve(475,-40.2, Stop.NONE)
     await multitask(
@@ -165,73 +167,74 @@ async def scissors():
     )
     db.stop()
 
-
-async def sandy():
-    #move toward the ship
-    await db.straight( 500 )
-    
-
-    #grind into the sunken ship
-    await wait( 500 )
-    db.drive(100,15)
-    await wait( 1200 )
-    db.stop()
-
-    #drop the slide / grab the red arm
-    await right.run_angle(500, -340)
-    #pull the red arm back
-    await db.straight( -100 )
-    #drop the red arm
-    await right.run_angle( 500, 340 )
-
-    #back to base
-    await db.straight( -500 )
-
-    db.stop()
-
 async def mega_trident():
-    #move toward the trident & tip it 
-    await db.straight( 800 )
+    dbResetSettings()
+
+    #move toward the trident & tip it
+    await multitask(
+        right.run_angle( -500, 360*2.9 ),
+        db.straight( 800 )
+    )
     #turn toward the three green things
     await accuTurn( -45 )
     #back up and drop our forklift
     await multitask(
-        db.straight( -110 ),
-        right.run_angle( 500, 360*3.5 )
+        db.straight( -120 ),
+        right.run_angle( 500, 360*2.75 )
     )
     #advance and push
-    await db.straight( 150 )
+    await db.straight( 160 )
 
     #back up a bit and lift up
-    #OPTIMIZE JOIN?
-    await db.straight( -65 )
-    await right.run_angle( 500, -360*3 )
+    await multitask(
+        db.straight( -65 ),
+        right.run_angle( 500, -360*2.3 )
+    )
 
-    #OPTIMIZE JOIN?
-    #OPTIMIZE TURN FAST, THEN ACCUTURN?
     #turn toward the mine cart
-    await accuTurn(95,0.1)
-    #drop the arm
-    await right.run_angle( 500, 360*3.2 )
+    await accuTurn( 68, 0.1 )
+    await db.straight( 100 )
 
-    #move arm under the mine cart
-    await db.straight(40)
-    await accuTurn(85)
-    #lift it up
-    await right.run_angle( 500, -360*3.5 )
+    #quick push the mine cart
+    await db.turn(-25)
 
-    #straighten to perpendicular
-    await accuTurn(90)
+    #TODO: accuturn measurement needed here
+
     #back up
-    await db.straight(-100)
-    #face theback wall
+    await db.straight(-80)
+
+    #curve into position
+    await db.curve(-220,45)
+    #line up
     await accuTurn(0)
+    #back and forth to flip the back green flap
+    await db.straight(-90)
+    await db.straght(20)
 
-    #OPTIMIZE DROP THIS
-    await wait(500)
+    # #pick up the trident and drop the flag
+    await left.run_time(-500,1750)
 
-    #back up to hit the trident again
-    await db.straight(-215)
+    # #quick back to home
+    db.settings( straight_speed=300, turn_rate=300)
+    await db.curve(-800,-45)
+
+    db.stop()
+
+async def boom():
+    dbResetSettings()
+    #just slowly slam the hammer
+    db.settings( turn_acceleration=50 )
+    await db.straight( 100 )
+    await wait( 500 )
+    await db.turn(45)
+    #and push it away
+    await db.straight( 200 )
+    await db.straight( -150 )
+
+    db.stop( )
+
+async def theFinalMission():
+    
 
     #pick up the trident and drop the flag
     await left.run_angle(500,-360*1.8)
@@ -255,6 +258,7 @@ async def boom():
     db.stop( )
 
 async def theFinalMission():
+    dbResetSettings()
     deg = 17
     
     #turn then drop the arm
@@ -295,16 +299,11 @@ async def theFinalMission():
     await left.run_time( 500, 2000 )
 
     #get away fast and come home
-    # db.settings(*db_def_settings)
-    # await db.straight( 200 )
-    # await db.turn(-50)
-    # db.settings( 500 )
-    # await db.straight(-1000)
-    
-    #last mission, just stop touching
-    db.settings( 500 )
+    db.settings(*db_def_settings)
     await db.straight( 200 )
-    
+    await db.turn(-50)
+    db.settings( 500 )
+    await db.straight(-1000)
     db.stop()
 
 # given abcd, and b, return bcda
@@ -313,7 +312,7 @@ def move_to_front(my_list, value):
     shifted_list = my_list[index:] + my_list[:index]
     return shifted_list
 
-missions = ["1", "2", "3", "4", "5", "6"]
+missions = ["1", "2", "3", "4", "5"]
 while True:
     # Print battery voltage in millivolts
     voltage = hub.battery.voltage()
@@ -327,18 +326,15 @@ while True:
         run_task(mega_trident())
         missions = move_to_front(missions, "2")
     if selected == "2":
-        run_task(sandy())
+        run_task(flag_pull())
         missions = move_to_front(missions, "3")
     if selected == "3":
-        run_task(flag_pull())
+        run_task(scissors())
         missions = move_to_front(missions, "4")
     if selected == "4":
-        run_task(scissors())
-        missions = move_to_front(missions, "5")
-    if selected == "6":
+        run_task(theFinalMission())
+        missions == move_to_front(missions, "5")
+    if selected == "5":
         run_task(boom())
         missions == move_to_front(missions, "1")
-    if selected == "5":
-        run_task(theFinalMission())
-        missions == move_to_front(missions, "6")
 
