@@ -199,6 +199,7 @@ async def mega_trident():
     await db.turn(-25)
 
     #TODO: accuturn measurement needed here
+    print( "okokok", hub.imu.heading())
 
     #back up
     await db.straight(-80)
@@ -209,7 +210,7 @@ async def mega_trident():
     await accuTurn(0)
     #back and forth to flip the back green flap
     await db.straight(-90)
-    await db.straght(20)
+    await db.straight(40)
 
     # #pick up the trident and drop the flag
     await left.run_time(-500,1750)
@@ -285,7 +286,7 @@ async def theFinalMission():
     #put the arm down
     await right.run_angle(500,350)
     #back up
-    await db.straight( -270 )
+    await db.straight( -295 )
     #rear to the thing we need to lift up
     await accuTurn( 90 )
     #slowly back up into the thing we need to lift
