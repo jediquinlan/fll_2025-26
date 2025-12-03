@@ -334,8 +334,8 @@ while True:
         missions = move_to_front(missions, "4")
     if selected == "4":
         run_task(theFinalMission())
-        missions == move_to_front(missions, "5")
+        missions = move_to_front(missions, "5")
     if selected == "5":
         run_task(boom())
-        missions == move_to_front(missions, "1")
+        missions = move_to_front(missions, "1")
 
