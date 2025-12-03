@@ -234,18 +234,6 @@ async def boom():
 
     db.stop( )
 
-async def theFinalMission():
-    
-
-    #pick up the trident and drop the flag
-    await left.run_angle(500,-360*1.8)
-
-    #quick back to home
-    db.settings( straight_speed=300, turn_rate=300)
-    await db.curve(-800,-45)
-
-    db.stop()
-
 async def boom():
     #just slowly slam the hammer
     db.settings( turn_acceleration=50 )
