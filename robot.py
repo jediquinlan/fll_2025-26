@@ -155,7 +155,7 @@ async def scissors():
     # approach the table
     await db.straight( 180 )
     await left.run_angle(500, 420)
-    await db.straight( -170 )
+    await db.straight( -180 )
     await db.straight(40)
     await db.turn(-25)
 
