@@ -120,7 +120,7 @@ for x in range (cell_width_num):
         db.straight(resolution)
         xcord += 1
         accuTurn(180)
-        db.straight(-83)
+        db.straight(-43)
         scan_color(xcord,ycord)
         db.reset()
     else:
@@ -128,7 +128,7 @@ for x in range (cell_width_num):
         db.straight(resolution)
         xcord += 1
         accuTurn(-180)
-        db.straight(-83)
+        db.straight(-43)
         scan_color(xcord,ycord)
         db.reset()
 
