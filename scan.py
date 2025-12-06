@@ -63,10 +63,10 @@ def accuTurn(target_angle, tolerance=0.25, speed=80):
     print( 'post', hub.imu.heading() )
 
 room_w = 470
-room_h = 500
+room_h = 250
 # robot_l = 203.2
 # robot_w = 152.4
-resolution = 20
+resolution = 40
 
 # Packet header to identify valid data packets
 PACKET_HEADER = 0xAA  # Changed from 0xFF to 0xAA (170)
@@ -82,46 +82,56 @@ def scan_color(x, y):
     # Send packet: [header, color_code, x, y, grid_width, grid_height]
     stdout.buffer.write(bytes([PACKET_HEADER, color_code, x, y, cell_width_num, cell_height_num]))
     hub.speaker.beep()
-    wait(50)
 
 
 xcord = 1
 ycord = 1
 
+
+
 db.reset()
-for x in range(cell_width_num):
-    if (x > 0):
-        db.straight(-100)
-    for y in range(cell_height_num):
-        if (y == 0):
+db.settings(100)
+db.straight(300)
+accuTurn(-90)
+db.straight(0.5*room_w)
+accuTurn(0)
+db.reset()
+distance_current = db.distance()
+for x in range (cell_width_num):
+    scan_color(xcord,ycord)
+    db.drive(200, 0)
+    # drive forward
+    counter = 0
+    while (db.distance() < room_h):
+        distance_current = db.distance()- (counter * (room_h/cell_height_num))
+        if (distance_current > room_h/cell_height_num):
+            distance_current = 0
+            if (x % 2 == 0):
+                ycord += 1
+            else:
+                ycord -= 1
             scan_color(xcord,ycord)
-        else:
-            db.straight(room_h / cell_height_num)
-            ycord += 1
-            scan_color(xcord,ycord)
-    accuTurn(90)
-    db.straight(resolution)
-    xcord += 1
-    accuTurn(180)
-    db.straight(-100)
-    for y in range(cell_height_num):
-        if (y == 0):
-            scan_color(xcord,ycord)
-        else:
-            db.straight(room_h / cell_height_num)
-            ycord-= 1
-            scan_color(xcord,ycord)
-    accuTurn(90)
-    db.straight(resolution)
-    xcord += 1
-    accuTurn(0)
+            counter +=1
+            print(xcord,ycord)
+    db.stop()
+    # turn around
+    if ( x % 2 == 0 ):
+        accuTurn(90)
+        db.straight(resolution)
+        xcord += 1
+        accuTurn(180)
+        db.straight(-83)
+        scan_color(xcord,ycord)
+        db.reset()
+    else:
+        accuTurn(-90)
+        db.straight(resolution)
+        xcord += 1
+        accuTurn(-180)
+        db.straight(-83)
+        scan_color(xcord,ycord)
+        db.reset()
 
 
-# optimize possibility?
-
-    # while (db.wheel turned amount < disance):
-
-    #     cell height = 20
-    #     wheel current amount = db.wheel turned amount
-    #     if wheel current amount >= cell height:
-    #         wheel current amount = 0
+    
+    
