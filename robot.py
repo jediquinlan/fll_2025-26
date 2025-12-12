@@ -172,7 +172,7 @@ async def mega_trident():
 
     #move toward the trident & tip it
     await multitask(
-        right.run_angle( -500, 360*2.9 ),
+        right.run_angle( 500, 360*1 ),
         db.straight( 800 )
     )
     #turn toward the three green things
@@ -183,41 +183,38 @@ async def mega_trident():
         right.run_angle( 500, 360*2.75 )
     )
     #advance and push
-    await db.straight( 160 )
+    await db.straight( 130 )
 
-    #back up a bit and lift up
+    #back up a bit, then lift up
+    await db.straight( -50 )
+    await right.run_angle( 500, -360*2 )
+
+    #turn to minecart, then put arm down
+    await accuTurn(80)
+    await right.run_angle(500, 360*2 )
+
+    #go fwd and lift up the mine cart
     await multitask(
-        db.straight( -65 ),
-        right.run_angle( 500, -360*2.3 )
+        db.straight(90),
+        right.run_angle(500, -360*3)
     )
 
-    #turn toward the mine cart
-    await accuTurn( 68, 0.1 )
-    await db.straight( 100 )
+    # await db.straight( -120 )
 
-    #quick push the mine cart
-    await db.turn(-25)
+    # # #curve into position
+    # await db.curve(-150, 90)
+    # #line up
+    # await accuTurn(0)
+    # #back and forth to flip the back green flap
+    # await db.straight(-140)
+    # await db.straight(40)
 
-    #TODO: accuturn measurement needed here
-    print( "okokok", hub.imu.heading())
+    # # #pick up the trident and drop the flag
+    # await left.run_time(-500,1750)
 
-    #back up
-    await db.straight(-80)
-
-    #curve into position
-    await db.curve(-220,45)
-    #line up
-    await accuTurn(0)
-    #back and forth to flip the back green flap
-    await db.straight(-90)
-    await db.straight(40)
-
-    # #pick up the trident and drop the flag
-    await left.run_time(-500,1750)
-
-    # #quick back to home
-    db.settings( straight_speed=300, turn_rate=300)
-    await db.curve(-800,-45)
+    # # #quick back to home
+    # db.settings( straight_speed=300, turn_rate=300)
+    # await db.curve(-800,-45)
 
     db.stop()
 
@@ -326,4 +323,3 @@ while True:
     if selected == "5":
         run_task(boom())
         missions = move_to_front(missions, "1")
-
