@@ -736,30 +736,59 @@ async def boom():
 
     db.stop( )
 
-
 async def theFinalMission():
     dbResetSettings()
-    await right.run_angle(-500,360*1)
-    await db.straight(800)
-    await accuTurn(-20)
-    # await db.straight(-92)
-    # await accuTurn(-2)
+    await db.straight( -30 )
+    db.settings( straight_acceleration=50 )
+    await db.straight(790)
+    
+    await accuTurn(-22)
     await left.run_angle(500, 360*0.9)
-    await accuTurn(26)
-    db.settings(100)
-    # await db.straight(150)
-    # await db.curve(-300, 10)
-    # await accuTurn(20)
-    await db.straight(300)
-    await right.run_angle(500,360*1)
-    db.settings(*db_def_settings)
-    await db.straight(-150)
-    # await db.straight(125)
-    # await db.straight(-80)
-    await accuTurn(-5)
-    await db.straight(-1000)
-    # await db.curve(-500,-45)
-    db.settings(*db_def_settings)
+
+    await accuTurn(29)
+    db.settings(straight_speed=100)
+    await db.straight(385)
+    await right.run_angle(-100,360*1)
+
+    await multitask(
+        right.run_angle( 500, 360*0.5),
+        db.straight( -300 )
+    )
+    await right.run_angle( -500, 360*0.5 )
+    await db.straight( 300 )
+
+    db.drive(0,300)
+    await wait(700)
+    db.stop()
+
+
+
+
+# async def theFinalMission():
+#     dbResetSettings()
+#     await right.run_angle(-500,360*1)
+#     await db.straight( -30 )
+#     db.settings( straight_acceleration=50 )
+#     await db.straight(790)
+#     await accuTurn(-22)
+#     await left.run_angle(500, 360*0.9)
+#     await accuTurn(29)
+#     db.settings(100)
+#     await db.straight(335)
+#     #push up the statue
+#     db.drive(0,300)
+#     await wait(700)
+#     db.stop()
+#     #lift up the arm
+#     await right.run_angle(500,360*1)
+#     # await accuTurn(29)
+#     db.settings(*db_def_settings)
+#     # await db.straight( 20 )
+#     # await accuTurn(30)
+#     await db.straight(-130)
+#     await accuTurn(14)
+#     await db.straight(-1000)
+#     db.stop()
 
 # given abcd, and b, return bcda
 def move_to_front(my_list, value):
