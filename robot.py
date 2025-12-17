@@ -56,9 +56,13 @@ async def flag_pull():
     timer = StopWatch()
     dbResetSettings()
     #approach ship
-    await db.straight(580)
+    await multitask(
+        db.straight(580),
+        right.run_angle(500,500)
+    )
+
     #drop arm on sand
-    await right.run_angle(500,750)
+    await right.run_angle(500,250)
     #pull back the sand
     await db.straight(-150)
 
@@ -87,17 +91,18 @@ async def flag_pull():
     await wait(700)
     db.stop()
     
-    # raising table
+    # raising table, release basket
     await multitask(
         right.run_angle(500, 850),
         left.run_angle(200, -450)
     )
-    #arm back
-    await left.run_angle(500, 300)
-    #pull out the tray
-    await db.straight(-100)
-    #right arm up, waited a bit so not to get stuck
-    await right.run_angle(500, -500)
+    #arms back & pull out tray
+    await multitask(
+        left.run_angle(500, 300),
+        right.run_angle(500, -500),
+        db.straight( -100 )
+    )
+
     #quick turn to home
     await db.turn(-90)
     #race on home
@@ -111,6 +116,7 @@ async def flag_pull():
 
 
 async def scissors():
+    timer = StopWatch()
     dbResetSettings()
     #curves to an angle
     await db.curve(475,-40.2, Stop.NONE)
@@ -163,7 +169,7 @@ async def scissors():
     #slam the stone
     await db.turn( 30 )
     db.stop( )
-    
+
     #push boulders and stone in
     await accuTurn( 50 )
     await multitask(
@@ -178,22 +184,25 @@ async def scissors():
     # approach the table
     await db.straight( 180 )
     await left.run_angle(500, 420)
-    await db.straight( -180 )
-    await db.straight(40)
-    await db.turn(-25)
 
-    #OPTIMIZE HERE - SPEED UP ON RETURN
-
+    await db.straight( -220 )
+    await db.straight( 40 )
+    await left.run_angle(500, -100)
+    db.settings( 500 )
     await multitask(
-        db.straight(-500),
-        left.run_angle(500, -420)
+        db.straight(-400),
+        left.run_angle(500, -320)
     )
+
     db.stop()
+    elapsed = timer.time()
+    print(f'=== SCISSORS COMPLETE ===')
+    print(f'Total time: {elapsed/1000:.2f} seconds ({elapsed} ms)')
+
 
 async def mega_trident():
     timer = StopWatch()
     dbResetSettings()
-
 
     #move toward the trident & tip it
     await multitask(
@@ -201,7 +210,7 @@ async def mega_trident():
         db.straight( 800 )
     )
     #turn toward the three green things
-    await accuTurn( -45, tolerance=0.5 )
+    await accuTurn( -45 )
     #back up and drop our forklift
     await multitask(
         db.straight( -120 ),
@@ -212,24 +221,21 @@ async def mega_trident():
 
     #back up a bit, then lift up
     await db.straight( -50 )
-    await right.run_angle( 500, -360*2 )
+    await right.run_angle( 500, -360*2.5 )
 
-    #turn to minecart, then put arm down
+    # #turn to minecart, then put arm down
     await accuTurn(80)
-    await right.run_angle(500, 360*2 )
+    await right.run_angle(500, 360*2.5 )
 
-    #go fwd and lift up the mine cart
+    # #go fwd and lift up the mine cart
     await multitask(
         db.straight(100),
         right.run_angle(500, -360*3)
     )
 
-
-    # await db.straight( -75 )
-
     # # #curve into position
     await db.curve(-160, 90)
-    #line up
+    # #line up
     await accuTurn(0)
     #back and forth to flip the back green flap
     await db.straight(-120)
@@ -252,8 +258,6 @@ async def mega_trident():
 async def theFinalMission():
     timer = StopWatch()
     dbResetSettings()
-    await db.straight( -30 )
-    # db.settings( straight_acceleration=50 )
     await db.straight(790)
     
     await accuTurn(-23)
@@ -270,25 +274,21 @@ async def theFinalMission():
     )
     await right.run_angle( -500, 360*0.5 )
 
-
     await db.straight( 275 )
 
-    #push up the statue
+    # push up the statue
     db.drive(0,300)
     await wait(200)
 
-    # align for the race back
-    await accuTurn(22)
-    db.settings( 250, 250 )
-    await db.straight( -1400 )
-    db.stop()
-
+    await db.turn( -25 )
 
     elapsed = timer.time()
     print(f'=== THEFINALMISSION COMPLETE ===')
     print(f'Total time: {elapsed/1000:.2f} seconds ({elapsed} ms)')
 
-
+    db.settings( 350, 450 )
+    await db.straight( -1400 )
+    db.stop()
 
 
 # given abcd, and b, return bcda
