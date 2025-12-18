@@ -99,11 +99,14 @@ async def flag_pull():
     #arms back & pull out tray
     await multitask(
         left.run_angle(500, 300),
-        right.run_angle(500, -500),
         db.straight( -100 )
     )
-
+    await multitask(
+        right.run_angle(500, -500),
+        db.straight(-30)
+    )
     #quick turn to home
+
     await db.turn(-90)
     #race on home
     db.settings(400)
@@ -210,7 +213,7 @@ async def mega_trident():
         db.straight( 800 )
     )
     #turn toward the three green things
-    await accuTurn( -45 )
+    await accuTurn( -46 )
     #back up and drop our forklift
     await multitask(
         db.straight( -120 ),
@@ -222,9 +225,10 @@ async def mega_trident():
     #back up a bit, then lift up
     await db.straight( -50 )
     await right.run_angle( 500, -360*2.5 )
+    await db.straight(-30)
 
     # #turn to minecart, then put arm down
-    await accuTurn(80)
+    await accuTurn( 76 )
     await right.run_angle(500, 360*2.5 )
 
     # #go fwd and lift up the mine cart
@@ -234,15 +238,16 @@ async def mega_trident():
     )
 
     # # #curve into position
-    await db.curve(-160, 90)
+    await db.curve(-200, 90)
     # #line up
     await accuTurn(0)
     #back and forth to flip the back green flap
-    await db.straight(-120)
+    # await db.straight(80)
+    await db.straight(-80)
     await db.straight(60)
 
     # #pick up the trident and drop the flag
-    await left.run_time(-500,1750)
+    await left.run_time(-500, 1500)
 
     # #quick back to home
     db.settings( straight_speed=300, turn_rate=300)
