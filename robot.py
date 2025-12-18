@@ -237,22 +237,20 @@ async def mega_trident():
         right.run_angle(500, -360*3)
     )
 
-    # # #curve into position
-    await db.curve(-200, 90)
-    # #line up
-    await accuTurn(0)
-    #back and forth to flip the back green flap
-    # await db.straight(80)
-    await db.straight(-80)
-    await db.straight(60)
+    await db.straight( -190 )
+    await accuTurn( 0 )
 
-    # #pick up the trident and drop the flag
+    await db.straight( -200 )
+    await db.straight( 50 )
+
+    #pick up the trident and drop the flag
     await left.run_time(-500, 1500)
 
-    # #quick back to home
+    #quick back to home
     db.settings( straight_speed=300, turn_rate=300)
     await db.curve(-800,-45)
 
+    #done
     db.stop()
     elapsed = timer.time()
     print(f'=== MEGA TRIDENT COMPLETE ===')
@@ -325,4 +323,3 @@ while True:
     if selected == "4":
         run_task(theFinalMission())
         missions = move_to_front(missions, "4")
-
