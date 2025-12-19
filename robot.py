@@ -55,60 +55,59 @@ async def accuTurn(target_angle, tolerance=0.25, speed=80):
 async def flag_pull():
     timer = StopWatch()
     dbResetSettings()
-    #approach ship
-    await multitask(
-        db.straight(580),
-        right.run_angle(500,500)
-    )
+    # #approach ship
+    # await multitask(
+    #     db.straight(580),
+    #     right.run_angle(500,500)
+    # )
 
-    #drop arm on sand
-    await right.run_angle(500,250)
-    #pull back the sand
-    await db.straight(-150)
+    # #drop arm on sand
+    # await right.run_angle(500,250)
+    # #pull back the sand
+    # await db.straight(-150)
 
-    #position arm to push the ship
-    await right.run_angle(500,-100)
+    # #position arm to push the ship
+    # await right.run_angle(500,-100)
 
-    #slow down and push the ship out of the way
-    db.settings(75)
-    await db.straight(325, Stop.BRAKE)
+    # #slow down and push the ship out of the way
+    # db.settings(75)
+    # await db.straight(325, Stop.BRAKE)
     
-    #drop the flag
-    await left.run_angle(500, -250)
-    await left.run_angle(500, 250)
+    # #drop the flag
+    # await left.run_angle(500, -250)
+    # await left.run_angle(500, 250)
     
-    #arm up and on we go, not hitting the yellow mission
-    db.settings(*db_def_settings)
-    await multitask(
-        right.run_angle(500,-600),
-        db.straight(435)
-    )
+    # #arm up and on we go, not hitting the yellow mission
+    # db.settings(*db_def_settings)
+    # await multitask(
+    #     right.run_angle(500,-600),
+    #     db.straight(435)
+    # )
 
-    #turning
-    await accuTurn(-90)
-    # goes to the basket-land hi
-    db.drive(100, 0)
-    await wait(700)
+    # #turning
+    # await accuTurn(-90)
+    # # goes to the basket-land hi
+    # db.drive(100, 0)
+    # await wait(700)
     db.stop()
     
-    # raising table, release basket
+    # raising table
     await multitask(
-        right.run_angle(500, 850),
-        left.run_angle(200, -450)
+        right.run_angle(500, 850)
     )
-    #arms back & pull out tray
-    await multitask(
-        left.run_angle(500, 300),
-        db.straight( -100 )
-    )
-    await multitask(
-        right.run_angle(500, -500),
-        db.straight(-30)
-    )
-    #quick turn to home
+    #move back a bit to avoid blowback
+    await db.straight( -30 )
+    #drop the arm to drop basket
+    await left.run_angle(500, -450)
 
+    await multitask(
+        db.straight( -100 ),
+        left.run_angle(500, 300),
+        right.run_angle(500, -500)
+    )
+    
     await db.turn(-90)
-    #race on home
+    # #race on home
     db.settings(400)
     await db.straight(-800)
     db.stop()
@@ -323,3 +322,4 @@ while True:
     if selected == "4":
         run_task(theFinalMission())
         missions = move_to_front(missions, "4")
+
