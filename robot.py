@@ -55,40 +55,40 @@ async def accuTurn(target_angle, tolerance=0.25, speed=80):
 async def flag_pull():
     timer = StopWatch()
     dbResetSettings()
-    # #approach ship
-    # await multitask(
-    #     db.straight(580),
-    #     right.run_angle(500,500)
-    # )
+    #approach ship
+    await multitask(
+        db.straight(580),
+        right.run_angle(500,500)
+    )
 
-    # #drop arm on sand
-    # await right.run_angle(500,250)
-    # #pull back the sand
-    # await db.straight(-150)
+    #drop arm on sand
+    await right.run_angle(500,250)
+    #pull back the sand
+    await db.straight(-150)
 
-    # #position arm to push the ship
-    # await right.run_angle(500,-100)
+    #position arm to push the ship
+    await right.run_angle(500,-100)
 
-    # #slow down and push the ship out of the way
-    # db.settings(75)
-    # await db.straight(325, Stop.BRAKE)
+    #slow down and push the ship out of the way
+    db.settings(75)
+    await db.straight(325, Stop.BRAKE)
     
-    # #drop the flag
-    # await left.run_angle(500, -250)
-    # await left.run_angle(500, 250)
+    #drop the flag
+    await left.run_angle(500, -250)
+    await left.run_angle(500, 250)
     
-    # #arm up and on we go, not hitting the yellow mission
-    # db.settings(*db_def_settings)
-    # await multitask(
-    #     right.run_angle(500,-600),
-    #     db.straight(435)
-    # )
+    #arm up and on we go, not hitting the yellow mission
+    db.settings(*db_def_settings)
+    await multitask(
+        right.run_angle(500,-600),
+        db.straight(435)
+    )
 
-    # #turning
-    # await accuTurn(-90)
-    # # goes to the basket-land hi
-    # db.drive(100, 0)
-    # await wait(700)
+    #turning
+    await accuTurn(-90)
+    # goes to the basket-land hi
+    db.drive(100, 0)
+    await wait(700)
     db.stop()
     
     # raising table
@@ -260,37 +260,55 @@ async def mega_trident():
 async def theFinalMission():
     timer = StopWatch()
     dbResetSettings()
-    await db.straight(790)
-    
-    await accuTurn(-23)
-    await left.run_angle(500, 360*0.9)
+    # await db.straight( -30 )
+    db.settings(None, 100 )
+
+    await db.straight(810)
+    db.settings(*db_def_settings)
+
+    await accuTurn(-19)
+    await left.run_angle(500, 360*0.8)
 
     await accuTurn(29)
     await db.straight(350)
     await right.run_angle(-500,360*1)
 
+    await accuTurn(29)
+
     db.settings( *db_def_settings )
     await multitask(
         right.run_angle( 500, 360*0.5),
-        db.straight( -280 )
+        db.straight( -300 )
     )
+
+    await accuTurn(29)
+
     await right.run_angle( -500, 360*0.5 )
 
-    await db.straight( 275 )
+    await db.straight( 295 )
 
     # push up the statue
     db.drive(0,300)
     await wait(200)
+    db.stop()
 
-    await db.turn( -25 )
+    await right.run_angle( 500, 360 )
 
+    await accuTurn( 20 )
+
+
+    db.settings( 350, 450 )
+    await db.straight( -800, Stop.NONE )
     elapsed = timer.time()
+
     print(f'=== THEFINALMISSION COMPLETE ===')
     print(f'Total time: {elapsed/1000:.2f} seconds ({elapsed} ms)')
 
-    db.settings( 350, 450 )
-    await db.straight( -1400 )
+    db.settings(150)
+    await db.straight(-500)
+
     db.stop()
+
 
 
 # given abcd, and b, return bcda
