@@ -137,7 +137,7 @@ async def scissors():
     #straighten out and back up and extend scissors
     await accuTurn(0)
     await multitask(
-        db.straight( -130 ), 
+        db.straight( -138 ), 
         right.run_angle( 500, 505 )
     )
 
@@ -148,7 +148,7 @@ async def scissors():
     await db.straight(-30)
     await accuTurn(8)
     db.settings(None, 100)
-    await db.straight( 80 )
+    await db.straight( 75 )
 
     db.settings(*db_def_settings)
 
@@ -160,13 +160,13 @@ async def scissors():
     # pull back
     await right.run_angle(500, -505)
 
-    #center up
+    #center up/align
     await accuTurn(0)
     
-    #knock the stone off
-    await db.curve( 361, 40, Stop.BRAKE )
+    #curve into the boulders area
+    await db.curve( 361, 45, Stop.BRAKE )
     #arm down
-    await left.run_angle(500, 390)
+    await left.run_angle(300, 375)
     
     #slam the stone
     await db.turn( 30 )
@@ -175,27 +175,24 @@ async def scissors():
     #push boulders and stone in
     await accuTurn( 50 )
     await multitask(
-        right.run_angle(500, 505),
+        right.run_angle(500, 485),
         left.run_angle(500, -390)
     )
     await right.run_angle(500, -505)
+
+    #Curves to the small table
+    await db.curve(-450,12, Stop.NONE)
+    await db.curve(-450,-12)
+    #backs up the final distance and pushes the small table
+    await db.straight(-200)
+
+    #moves forward
+    await db.straight(100)
+    #turns to face towards the base
+    await db.turn(-90)
+    #backs up into the base, end of mission
+    await db.straight(500,-900)
     
-    #back up to face the table
-    await db.curve( -300, 82 )
-
-    # approach the table
-    await db.straight( 180 )
-    await left.run_angle(500, 420)
-
-    await db.straight( -220 )
-    await db.straight( 40 )
-    await left.run_angle(500, -100)
-    db.settings( 500 )
-    await multitask(
-        db.straight(-400),
-        left.run_angle(500, -320)
-    )
-
     db.stop()
     elapsed = timer.time()
     print(f'=== SCISSORS COMPLETE ===')
@@ -227,16 +224,16 @@ async def mega_trident():
     await db.straight(-30)
 
     # #turn to minecart, then put arm down
-    await accuTurn( 76 )
+    await accuTurn( 75 )
     await right.run_angle(500, 360*2.5 )
 
     # #go fwd and lift up the mine cart
-    await multitask(
-        db.straight(100),
-        right.run_angle(500, -360*3)
-    )
+    db.settings(100, 100)
+    await db.straight(100),
+    await right.run_angle(500, -360*3)
 
-    await db.straight( -190 )
+    db.settings(*db_def_settings)
+    await db.straight( -170 )
     await accuTurn( 0 )
 
     await db.straight( -200 )
@@ -266,7 +263,7 @@ async def theFinalMission():
     await db.straight(810)
     db.settings(*db_def_settings)
 
-    await accuTurn(-19)
+    await accuTurn(-21)
     await left.run_angle(500, 360*0.8)
 
     await accuTurn(29)
@@ -281,15 +278,15 @@ async def theFinalMission():
         db.straight( -300 )
     )
 
-    await accuTurn(29)
+    await accuTurn(27)
 
     await right.run_angle( -500, 360*0.5 )
 
-    await db.straight( 295 )
+    await db.straight( 305 )
 
     # push up the statue
     db.drive(0,300)
-    await wait(200)
+    await wait(300)
     db.stop()
 
     await right.run_angle( 500, 360 )
@@ -329,7 +326,7 @@ while True:
     selected = hub_menu( *missions )
     print(f"Selected mission: {selected}")
     if selected == "1":
-        run_task(mega_trident())
+        run_task(scissors())
         missions = move_to_front(missions, "2")
     if selected == "2":
         run_task(flag_pull())
@@ -340,4 +337,6 @@ while True:
     if selected == "4":
         run_task(theFinalMission())
         missions = move_to_front(missions, "4")
+
+
 
