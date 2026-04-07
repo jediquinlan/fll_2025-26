@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pybricks Mosaic Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        #value-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 30px auto;
+            display: grid;
+            gap: 2px;
+            padding: 10px;
+            border: 3px solid #ccc;
+            border-radius: 10px;
+            justify-content: center;
+            align-content: center;
+            background-color: #f0f0f0;
+            max-width: 90%;
+        }
+        .grid-cell {
+            border: 1px solid #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            background-color: #ddd;
+        }
+        button {
+            font-size: 18px;
+            padding: 15px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .status-disconnected {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .status-connected {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status-connecting {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        #log {
+            margin-top: 30px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pybricks Mosaic Scanner</h1>
+    
+    <div id="status" class="status-disconnected">
+        Disconnected
+    </div>
+    
+    <button id="connectBtn">Connect to Hub</button>
+    <button id="disconnectBtn" disabled>Disconnect</button>
+    <button id="clearBtn">Clear Grid</button>
+    
+    <div style="margin: 20px 0;">
+        <span id="gridInfo" style="font-weight: bold;">Grid: 0x0</span>
+    </div>
+    
+    <div id="currentPos" style="margin: 10px 0; font-weight: bold;">
+        Current: --
+    </div>
+    
+    <div id="value-display"></div>
+    
+    <div id="log"></div>
+
+    <script>
+        const valueDisplay = document.getElementById('value-display');
+        const statusDiv = document.getElementById('status');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const logDiv = document.getElementById('log');
+        const currentPosDiv = document.getElementById('currentPos');
+        const gridInfo = document.getElementById('gridInfo');
+        
+        let device = null;
+        let characteristic = null;
+        let mosaicGrid = {};
+        let maxX = 0;
+        let maxY = 0;
+        const MAX_DISPLAY_SIZE = 600;
+        
+        // Byte buffer for incoming BLE data (may arrive split across notifications)
+        let byteBuffer = [];
+        
+        // Marker byte that prefixes every valid data packet
+        const MARKER = 0xFF;
+        
+        // Pybricks UART Service UUIDs
+        const PYBRICKS_SERVICE_UUID = 'c5f50001-8280-46da-89f4-6d8051e4aeef';
+        const UART_RX_CHAR_UUID = 'c5f50002-8280-46da-89f4-6d8051e4aeef';
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML = `[${timestamp}] ${message}<br>` + logDiv.innerHTML;
+        }
+        
+        function updateStatus(status, className) {
+            statusDiv.textContent = status;
+            statusDiv.className = className;
+        }
+        
+        function clearGrid() {
+            mosaicGrid = {};
+            maxX = 0;
+            maxY = 0;
+            byteBuffer = [];
+            rebuildGrid();
+            log('Grid cleared');
+        }
+        
+        function getColorInfo(colorCode) {
+            const COLOR_INFO = {
+                0: { name: 'None', color: '#ddd' },
+                1: { name: 'Red', color: '#ff0000' },
+                2: { name: 'Green', color: '#00ff00' },
+                3: { name: 'Blue', color: '#0000ff' },
+                4: { name: 'Yellow', color: '#ffff00' },
+                5: { name: 'White', color: '#ffffff' },
+                6: { name: 'Black', color: '#000000' }
+            };
+            return COLOR_INFO[colorCode] || { name: 'Unknown', color: '#888' };
+        }
+        
+        function rebuildGrid() {
+            const width = maxX + 1;
+            const height = maxY + 1;
+            
+            const cellSize = Math.min(
+                Math.floor(MAX_DISPLAY_SIZE / Math.max(width, height)),
+                60
+            );
+            
+            valueDisplay.style.gridTemplateColumns = `repeat(${width}, ${cellSize}px)`;
+            valueDisplay.style.gridTemplateRows = `repeat(${height}, ${cellSize}px)`;
+            valueDisplay.innerHTML = '';
+            
+            gridInfo.textContent = `Grid: ${width}x${height} (${cellSize}px cells)`;
+            
+            for (let y = 0; y <= maxY; y++) {
+                for (let x = 0; x <= maxX; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.id = `cell-${x}-${y}`;
+                    cell.style.width = `${cellSize}px`;
+                    cell.style.height = `${cellSize}px`;
+                    
+                    const key = `${x},${y}`;
+                    if (mosaicGrid[key] !== undefined) {
+                        const colorCode = mosaicGrid[key];
+                        const colorInfo = getColorInfo(colorCode);
+                        cell.style.backgroundColor = colorInfo.color;
+                        cell.title = `(${x}, ${y}): ${colorInfo.name}`;
+                    }
+                    
+                    valueDisplay.appendChild(cell);
+                }
+            }
+        }
+        
+        function updateCell(x, y, colorCode) {
+            let needsRebuild = false;
+            if (x > maxX) {
+                maxX = x;
+                needsRebuild = true;
+            }
+            if (y > maxY) {
+                maxY = y;
+                needsRebuild = true;
+            }
+            
+            mosaicGrid[`${x},${y}`] = colorCode;
+            
+            if (needsRebuild) {
+                rebuildGrid();
+            } else {
+                const cell = document.getElementById(`cell-${x}-${y}`);
+                if (cell) {
+                    const colorInfo = getColorInfo(colorCode);
+                    cell.style.backgroundColor = colorInfo.color;
+                    cell.title = `(${x}, ${y}): ${colorInfo.name}`;
+                }
+            }
+        }
+        
+        async function connect() {
+            try {
+                updateStatus('Connecting...', 'status-connecting');
+                log('Requesting Bluetooth device...');
+                
+                device = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: [PYBRICKS_SERVICE_UUID] }]
+                });
+                
+                log(`Selected device: ${device.name}`);
+                
+                const server = await device.gatt.connect();
+                log('Connected to GATT server');
+                
+                const service = await server.getPrimaryService(PYBRICKS_SERVICE_UUID);
+                log('Got Pybricks UART service');
+                
+                characteristic = await service.getCharacteristic(UART_RX_CHAR_UUID);
+                log('Got UART RX characteristic');
+                
+                // Clear buffer on new connection
+                byteBuffer = [];
+                
+                await characteristic.startNotifications();
+                log('Notifications started');
+                
+                characteristic.addEventListener('characteristicvaluechanged', handleValueChange);
+                
+                updateStatus(`Connected to ${device.name}`, 'status-connected');
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                
+            } catch (error) {
+                log(`Error: ${error}`);
+                updateStatus('Connection failed', 'status-disconnected');
+                console.error('Connection error:', error);
+            }
+        }
+        
+        function handleValueChange(event) {
+            const value = event.target.value;
+            const bytes = new Uint8Array(value.buffer);
+            
+            // Append new bytes to buffer
+            for (let i = 0; i < bytes.length; i++) {
+                byteBuffer.push(bytes[i]);
+            }
+            
+            // Scan buffer for marker packets: [0xFF, x, y, color]
+            while (byteBuffer.length > 0) {
+                // Find next marker
+                const markerIdx = byteBuffer.indexOf(MARKER);
+                
+                if (markerIdx === -1) {
+                    // No marker found — discard everything
+                    byteBuffer = [];
+                    break;
+                }
+                
+                // Discard any bytes before the marker
+                if (markerIdx > 0) {
+                    byteBuffer.splice(0, markerIdx);
+                }
+                
+                // Need at least 4 bytes: [0xFF, x, y, color]
+                if (byteBuffer.length < 4) {
+                    break; // Wait for more data
+                }
+                
+                const x = byteBuffer[1];
+                const y = byteBuffer[2];
+                const colorCode = byteBuffer[3];
+                
+                // Consume these 4 bytes
+                byteBuffer.splice(0, 4);
+                
+                // Validate: x and y should be small grid coords, color 0-6
+                if (x < 100 && y < 100 && colorCode <= 6) {
+                    updateCell(x, y, colorCode);
+                    
+                    const colorName = getColorInfo(colorCode).name;
+                    currentPosDiv.textContent = `Current: (${x}, ${y}) - ${colorName}`;
+                    log(`Position (${x}, ${y}): ${colorName}`);
+                }
+            }
+        }
+        
+        function disconnect() {
+            if (device && device.gatt.connected) {
+                device.gatt.disconnect();
+                log('Disconnected');
+            }
+            updateStatus('Disconnected', 'status-disconnected');
+            currentPosDiv.textContent = 'Current: --';
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+        }
+        
+        connectBtn.addEventListener('click', connect);
+        disconnectBtn.addEventListener('click', disconnect);
+        clearBtn.addEventListener('click', clearGrid);
+        
+        rebuildGrid();
+        
+        if ('bluetooth' in navigator) {
+            log('Web Bluetooth API is available');
+        } else {
+            log('ERROR: Web Bluetooth API not available. Use Chrome, Edge, or Opera.');
+            updateStatus('Browser not supported', 'status-disconnected');
+            connectBtn.disabled = true;
+        }
+    </script>
+</body>
+</html>
