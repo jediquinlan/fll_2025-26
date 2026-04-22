@@ -58,11 +58,11 @@ async def flag_pull():
     #approach ship
     await multitask(
         db.straight(580),
-        right.run_angle(500,500)
+        right.run_angle(500,430)
     )
 
     #drop arm on sand
-    await right.run_angle(500,250)
+    await right.run_angle(500,270)
     #pull back the sand
     await db.straight(-150)
 
@@ -76,41 +76,13 @@ async def flag_pull():
     #drop the flag
     await left.run_angle(500, -250)
     await left.run_angle(500, 250)
-    
-    #arm up and on we go, not hitting the yellow mission
-    db.settings(*db_def_settings)
-    await multitask(
-        right.run_angle(500,-600),
-        db.straight(435)
-    )
 
-    #turning
-    await accuTurn(-90)
-    # goes to the basket-land hi
-    db.drive(100, 0)
-    await wait(700)
-    db.stop()
+    await right.run_angle(500,-300)
+    dbResetSettings()
+    await db.straight(-400)
+    await db.arc(500,-45)
     
-    # raising table
-    await multitask(
-        right.run_angle(500, 850)
-    )
-    #move back a bit to avoid blowback
-    await db.straight( -30 )
-    #drop the arm to drop basket
-    await left.run_angle(500, -450)
-
-    await multitask(
-        db.straight( -100 ),
-        left.run_angle(500, 300),
-        right.run_angle(500, -500)
-    )
     
-    await db.turn(-90)
-    # #race on home
-    db.settings(400)
-    await db.straight(-800)
-    db.stop()
 
     elapsed = timer.time()
     print(f'=== FLAG_PULL COMPLETE ===')
@@ -252,9 +224,35 @@ async def mega_trident():
     print(f'=== MEGA TRIDENT COMPLETE ===')
     print(f'Total time: {elapsed/1000:.2f} seconds ({elapsed} ms)')
 
+async def drop():
+    dbResetSettings()
+    #drives forward to the dinosaur thing
+    await db.straight(500)
+    #turns a little to face the dino-thing
+    await accuTurn(3)
+    #lowers the left arm
+    await left.run_angle(500,-450)
+    #moves forward slightly
+    await db.straight(50)
+    #turns to put left arm under the dino-thing
+    await accuTurn(20)
+    #back up to be under the head
+    await db.straight(-20)
+    
+    #raises the thing
+    await left.run_angle(200, 150)
+    #push to lock into place
+    await db.straight(40)
 
+    #curves out and goes back to starting area
+    await db.arc(500, -50)
+    await multitask(
+        #backs out completly
+        db.straight(-150),
+        left.run_angle(500,300)
+    )
 
-async def theFinalMission():
+async def Mission2():
     timer = StopWatch()
     dbResetSettings()
     # await db.straight( -30 )
@@ -263,49 +261,25 @@ async def theFinalMission():
     await db.straight(810)
     db.settings(*db_def_settings)
 
-    await accuTurn(-21)
+    await accuTurn(-20)
     await left.run_angle(500, 360*0.8)
+    await accuTurn(0)
+    await db.straight(-100)
+    await accuTurn(90)
+    db.settings(None, 100 )
+    await db.straight(120)
+    db.settings(*db_def_settings)
 
-    await accuTurn(29)
-    await db.straight(350)
-    await right.run_angle(-500,360*1)
+    await db.straight(-100)
+    await accuTurn(15)
+    await db.straight(200,Stop.NONE)
+    await db.arc(-800,60)
 
-    await accuTurn(29)
-
-    db.settings( *db_def_settings )
-    await multitask(
-        right.run_angle( 500, 360*0.5),
-        db.straight( -300 )
-    )
-
-    await accuTurn(27)
-
-    await right.run_angle( -500, 360*0.5 )
-
-    await db.straight( 305 )
-
-    # push up the statue
-    db.drive(0,300)
-    await wait(300)
-    db.stop()
-
-    await right.run_angle( 500, 360 )
-
-    await accuTurn( 20 )
-
-
-    db.settings( 350, 450 )
-    await db.straight( -800, Stop.NONE )
-    elapsed = timer.time()
-
-    print(f'=== THEFINALMISSION COMPLETE ===')
-    print(f'Total time: {elapsed/1000:.2f} seconds ({elapsed} ms)')
-
-    db.settings(150)
-    await db.straight(-500)
-
-    db.stop()
-
+async def spinnyThing():
+    for x in range (10):
+        await right.run_angle(500,-80)
+        await right.run_angle(500,80)
+    
 
 
 # given abcd, and b, return bcda
@@ -314,7 +288,7 @@ def move_to_front(my_list, value):
     shifted_list = my_list[index:] + my_list[:index]
     return shifted_list
 
-missions = ["1", "2", "3", "4"]
+missions = ["1", "2", "3", "4", "5", "6"]
 while True:
     # Print battery voltage in millivolts
     voltage = hub.battery.voltage()
@@ -335,8 +309,13 @@ while True:
         run_task(scissors())
         missions = move_to_front(missions, "4")
     if selected == "4":
-        run_task(theFinalMission())
-        missions = move_to_front(missions, "4")
-
+        run_task(Mission2())
+        missions = move_to_front(missions, "5")
+    if selected == "5":
+        run_task(drop())
+        missions = move_to_front(missions, "6")
+    if selected == "6":
+       run_task(spinnyThing())
+       missions = move_to_front(missions, "6") 
 
 
