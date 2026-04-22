@@ -120,7 +120,7 @@ async def scissors():
     await db.straight(-30)
     await accuTurn(8)
     db.settings(None, 100)
-    await db.straight( 75 )
+    await db.straight( 85 )
 
     db.settings(*db_def_settings)
 
@@ -138,13 +138,10 @@ async def scissors():
     #curve into the boulders area
     await db.curve( 361, 45, Stop.BRAKE )
     #arm down
-    await left.run_angle(300, 375)
+    await left.run_angle(300, 445)
     
-    #slam the stone
-    await db.turn( 30 )
-    db.stop( )
 
-    #push boulders and stone in
+    # push boulders and stone in
     await accuTurn( 50 )
     await multitask(
         right.run_angle(500, 485),
