@@ -233,19 +233,18 @@ async def drop():
     #lowers the left arm
     await left.run_angle(500,-450)
     #moves forward slightly
-    await db.straight(50)
+    await db.straight(43)
     #turns to put left arm under the dino-thing
     await accuTurn(20)
-    #back up to be under the head
-    await db.straight(-20)
-    
-    #raises the thing
-    await left.run_angle(200, 150)
-    #push to lock into place
-    await db.straight(40)
 
+    #raises the thing
+    db.settings(50,50)
+    await left.run_angle(150, 170),
+    await db.straight(-20)
+
+    dbResetSettings()
     #curves out and goes back to starting area
-    await db.arc(500, -50)
+    await db.arc(500, -50,then = Stop.NONE)
     await multitask(
         #backs out completly
         db.straight(-150),
@@ -317,5 +316,4 @@ while True:
     if selected == "6":
        run_task(spinnyThing())
        missions = move_to_front(missions, "6") 
-
 
