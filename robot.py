@@ -141,27 +141,17 @@ async def scissors():
     await left.run_angle(300, 445)
     
 
-    # push boulders and stone in
-    await accuTurn( 50 )
+    # push boulders and stone in, raise arm back up
     await multitask(
         right.run_angle(500, 485),
         left.run_angle(500, -390)
     )
     await right.run_angle(500, -505)
-
-    #Curves to the small table
-    await db.curve(-450,12, Stop.NONE)
-    await db.curve(-450,-12)
-    #backs up the final distance and pushes the small table
+    #arcs backward to start
+    await db.arc(400,-90, then = Stop.NONE)
+    #backs the rest of the distance to the starting point
     await db.straight(-200)
 
-    #moves forward
-    await db.straight(100)
-    #turns to face towards the base
-    await db.turn(-90)
-    #backs up into the base, end of mission
-    await db.straight(500,-900)
-    
     db.stop()
     elapsed = timer.time()
     print(f'=== SCISSORS COMPLETE ===')
