@@ -182,22 +182,22 @@ async def mega_trident():
     #back up a bit, then lift up
     await db.straight( -50 )
     await right.run_angle( 500, -360*2.5 )
-    await db.straight(-30)
+    await db.straight(-40)
 
     # #turn to minecart, then put arm down
-    await accuTurn( 75 )
+    await accuTurn( 78 )
     await right.run_angle(500, 360*2.5 )
 
     # #go fwd and lift up the mine cart
     db.settings(100, 100)
-    await db.straight(100),
+    await db.straight(90),
     await right.run_angle(500, -360*3)
 
     db.settings(*db_def_settings)
     await db.straight( -170 )
     await accuTurn( 0 )
 
-    await db.straight( -200 )
+    await db.straight( -230 )
     await db.straight( 50 )
 
     #pick up the trident and drop the flag
@@ -275,20 +275,22 @@ async def spinnyThing():
 async def AfterScissors():
     dbResetSettings()
     await right.run_angle(500, -100)
-    # db.settings(100)
+    db.settings(100)
     await db.straight(120)
-    await accuTurn(-41)
+    await accuTurn(-42)
     await db.straight(365)
     await left.run_angle(300,445)
     db.settings(*db_def_settings)
-    await db.straight(-390)
+    await db.straight(-360)
     await db.straight(50)
     await left.run_angle(300,-445)
-    await db.straight(40)
-    await accuTurn(70)
-    await db.straight(-145)
-    await db.straight(60)
-    await accuTurn(135)
+    await db.straight(-100)
+    await multitask(
+        right.run_angle(-400, 500),
+        accuTurn(120)
+    )
+    await db.arc(260,-60)
+    await db.arc(240,60, None, Stop.NONE)
     await db.straight(500)
 
 
@@ -315,6 +317,9 @@ while True:
     if selected == "2":
         run_task(AfterScissors())
         missions = move_to_front(missions, "3")
+    if selected == "3":
+        run_task(spinnyThing())
+        missions = move_to_front(missions, "4") 
     if selected == "4":
         run_task(Crossy_Board())
         missions = move_to_front(missions, "5")
@@ -327,6 +332,3 @@ while True:
     if selected == "7":
        run_task(drop())
        missions = move_to_front(missions, "7") 
-    if selected == "3":
-       run_task(spinnyThing())
-       missions = move_to_front(missions, "4") 
