@@ -120,13 +120,13 @@ async def scissors():
     await db.straight(-30)
     await accuTurn(8)
     db.settings(None, 100)
-    await db.straight( 85 )
+    await db.straight( 80 )
 
     db.settings(*db_def_settings)
 
     #slam table to the left
     db.drive(0,-500)
-    await wait(500)
+    await wait(650)
     db.stop()
 
     # pull back
@@ -136,7 +136,9 @@ async def scissors():
     await accuTurn(0)
     
     #curve into the boulders area
-    await db.curve( 361, 45, Stop.BRAKE )
+    await db.curve( 361, 45, Stop.NONE )
+    #moves forward more
+    await db.straight(10)
     #arm down
     await left.run_angle(300, 445)
     
@@ -144,7 +146,7 @@ async def scissors():
     # push boulders and stone in, raise arm back up
     await multitask(
         right.run_angle(500, 485),
-        left.run_angle(500, -390)
+        left.run_angle(500, -410)
     )
     await right.run_angle(500, -505)
     #arcs backward to start
@@ -238,7 +240,7 @@ async def drop():
         left.run_angle(500,300)
     )
 
-async def Mission2():
+async def Crossy_Board():
     timer = StopWatch()
     dbResetSettings()
     # await db.straight( -30 )
@@ -250,8 +252,8 @@ async def Mission2():
     await accuTurn(-20)
     await left.run_angle(500, 360*0.8)
     await accuTurn(0)
-    await db.straight(-100)
-    await accuTurn(90)
+    await db.straight(-80)
+    await accuTurn(95)
     db.settings(None, 100 )
     await db.straight(120)
     db.settings(*db_def_settings)
@@ -262,10 +264,32 @@ async def Mission2():
     await db.arc(-800,60)
 
 async def spinnyThing():
-    for x in range (10):
-        await right.run_angle(500,-80)
-        await right.run_angle(500,80)
+    dbResetSettings()
+    await accuTurn(-10)
+    await db.straight(285)
+    for x in range (4):
+        await right.run_angle(500,-100)
+        await right.run_angle(500,100)
+    await db.straight(-285+67-67)
     
+async def AfterScissors():
+    dbResetSettings()
+    await right.run_angle(500, -100)
+    # db.settings(100)
+    await db.straight(120)
+    await accuTurn(-41)
+    await db.straight(365)
+    await left.run_angle(300,445)
+    db.settings(*db_def_settings)
+    await db.straight(-390)
+    await db.straight(50)
+    await left.run_angle(300,-445)
+    await db.straight(40)
+    await accuTurn(70)
+    await db.straight(-145)
+    await db.straight(60)
+    await accuTurn(135)
+    await db.straight(500)
 
 
 # given abcd, and b, return bcda
@@ -274,7 +298,7 @@ def move_to_front(my_list, value):
     shifted_list = my_list[index:] + my_list[:index]
     return shifted_list
 
-missions = ["1", "2", "3", "4", "5", "6"]
+missions = ["1", "2", "3", "4", "5", "6", "7"]
 while True:
     # Print battery voltage in millivolts
     voltage = hub.battery.voltage()
@@ -289,18 +313,20 @@ while True:
         run_task(scissors())
         missions = move_to_front(missions, "2")
     if selected == "2":
-        run_task(flag_pull())
+        run_task(AfterScissors())
         missions = move_to_front(missions, "3")
-    if selected == "3":
-        run_task(scissors())
-        missions = move_to_front(missions, "4")
     if selected == "4":
-        run_task(Mission2())
+        run_task(Crossy_Board())
         missions = move_to_front(missions, "5")
     if selected == "5":
-        run_task(drop())
+        run_task(mega_trident())
         missions = move_to_front(missions, "6")
     if selected == "6":
+        run_task(flag_pull())
+        missions = move_to_front(missions, "7")
+    if selected == "7":
+       run_task(drop())
+       missions = move_to_front(missions, "7") 
+    if selected == "3":
        run_task(spinnyThing())
-       missions = move_to_front(missions, "6") 
-
+       missions = move_to_front(missions, "4") 
