@@ -18,9 +18,21 @@ left = Motor(Port.C)
 right = Motor(Port.B)
 db_def_settings = db.settings()
 
+CRAZY_CROSSY_BOARD = True
+
 def dbResetSettings( ):
     db.settings( *db_def_settings )
     db.reset()
+
+def dbFast( ):
+    acc = 2
+    straight_speed, straight_acc, turn_rate, turn_acc = db.settings()
+    db.settings(
+        straight_speed * acc,    # double speed
+        straight_acc,          # keep acceleration
+        turn_rate * acc,         # double turn rate
+        turn_acc               # keep turn acceleration
+    )
 
 async def accuTurn(target_angle, tolerance=0.25, speed=80):
     while True:
@@ -29,7 +41,7 @@ async def accuTurn(target_angle, tolerance=0.25, speed=80):
 
         # Check if we're within the tolerance range of the target angle
         if abs(angle_difference) <= tolerance:
-            print( 'W00t', current_angle )
+            # print( 'W00t', current_angle )
             db.stop()
             break
 
@@ -50,10 +62,9 @@ async def accuTurn(target_angle, tolerance=0.25, speed=80):
         db.drive(0, direction)
     
     await wait( 100 )
-    print( 'post', hub.imu.heading() )
+    # print( 'post', hub.imu.heading() )
 
 async def flag_pull():
-    timer = StopWatch()
     dbResetSettings()
     #approach ship
     await multitask(
@@ -81,17 +92,11 @@ async def flag_pull():
     dbResetSettings()
     await db.straight(-400)
     await db.arc(500,-45)
-    
-    
-
-    elapsed = timer.time()
-    print(f'=== FLAG_PULL COMPLETE ===')
-    print(f'Total time: {elapsed/1000:.2f} seconds ({elapsed} ms)')
 
 
 async def scissors():
-    timer = StopWatch()
     dbResetSettings()
+
     #curves to an angle
     await db.curve(475,-40.2, Stop.NONE)
     await multitask(
@@ -149,19 +154,18 @@ async def scissors():
         left.run_angle(500, -410)
     )
     await right.run_angle(500, -505)
+
+
     #arcs backward to start
-    await db.arc(400,-90, then = Stop.NONE)
+    dbFast()
+    await db.arc(350,-90, then = Stop.NONE)
     #backs the rest of the distance to the starting point
     await db.straight(-200)
 
     db.stop()
-    elapsed = timer.time()
-    print(f'=== SCISSORS COMPLETE ===')
-    print(f'Total time: {elapsed/1000:.2f} seconds ({elapsed} ms)')
 
 
 async def mega_trident():
-    timer = StopWatch()
     dbResetSettings()
 
     #move toward the trident & tip it
@@ -182,22 +186,22 @@ async def mega_trident():
     #back up a bit, then lift up
     await db.straight( -50 )
     await right.run_angle( 500, -360*2.5 )
-    await db.straight(-40)
+    await db.straight(-30)
 
     # #turn to minecart, then put arm down
-    await accuTurn( 78 )
+    await accuTurn( 76 )
     await right.run_angle(500, 360*2.5 )
 
     # #go fwd and lift up the mine cart
-    db.settings(100, 100)
-    await db.straight(90),
-    await right.run_angle(500, -360*3)
+    await multitask(
+        db.straight(100),
+        right.run_angle(500, -360*3)
+    )
 
-    db.settings(*db_def_settings)
-    await db.straight( -170 )
+    await db.straight( -190 )
     await accuTurn( 0 )
 
-    await db.straight( -230 )
+    await db.straight( -200 )
     await db.straight( 50 )
 
     #pick up the trident and drop the flag
@@ -209,9 +213,6 @@ async def mega_trident():
 
     #done
     db.stop()
-    elapsed = timer.time()
-    print(f'=== MEGA TRIDENT COMPLETE ===')
-    print(f'Total time: {elapsed/1000:.2f} seconds ({elapsed} ms)')
 
 async def drop():
     dbResetSettings()
@@ -241,23 +242,32 @@ async def drop():
     )
 
 async def Crossy_Board():
-    timer = StopWatch()
     dbResetSettings()
-    # await db.straight( -30 )
-    db.settings(None, 100 )
+
+    if (CRAZY_CROSSY_BOARD):
+        dbFast()
+    else:
+        #slow accel to avoid wobble
+        db.settings( None, 100 )
+
 
     await db.straight(810)
     db.settings(*db_def_settings)
 
+    #turn to spin up the treasure
     await accuTurn(-20)
     await left.run_angle(500, 360*0.8)
     await accuTurn(0)
     await db.straight(-80)
     await accuTurn(95)
     db.settings(None, 100 )
+
+    #dock to pick up the slide panel
     await db.straight(120)
     db.settings(*db_def_settings)
 
+    #back up & head home
+    dbFast()
     await db.straight(-100)
     await accuTurn(15)
     await db.straight(200,Stop.NONE)
@@ -275,23 +285,27 @@ async def spinnyThing():
 async def AfterScissors():
     dbResetSettings()
     await right.run_angle(500, -100)
-    db.settings(100)
     await db.straight(120)
     await accuTurn(-42)
     await db.straight(365)
     await left.run_angle(300,445)
+
     db.settings(*db_def_settings)
-    await db.straight(-360)
+    await db.straight(-300)
     await db.straight(50)
+    
     await left.run_angle(300,-445)
     await db.straight(-100)
     await multitask(
         right.run_angle(-400, 500),
         accuTurn(120)
     )
-    await db.arc(260,-60)
-    await db.arc(240,60, None, Stop.NONE)
-    await db.straight(500)
+    await db.arc(300,-60)
+
+    dbFast()
+    await db.arc(240, 60, None, Stop.NONE)
+    await db.straight(300)
+    db.stop()
 
 
 # given abcd, and b, return bcda
@@ -302,15 +316,23 @@ def move_to_front(my_list, value):
 
 missions = ["1", "2", "3", "4", "5", "6", "7"]
 while True:
+
     # Print battery voltage in millivolts
     voltage = hub.battery.voltage()
     print(f"Battery voltage: {voltage} mV")
+    if voltage > 8000:
+        hub.light.on(Color.GREEN)
+    else:
+        hub.light.on(Color.RED)
+
+    selected = hub_menu( *missions )
+    print(f"Selected mission: {selected}")
+    
+    timer = StopWatch()
 
     dbResetSettings()
     db.use_gyro( True )
 
-    selected = hub_menu( *missions )
-    print(f"Selected mission: {selected}")
     if selected == "1":
         run_task(scissors())
         missions = move_to_front(missions, "2")
@@ -332,3 +354,6 @@ while True:
     if selected == "7":
        run_task(drop())
        missions = move_to_front(missions, "7") 
+
+    elapsed = timer.time()
+    print(f'Total time: {elapsed/1000:.2f} seconds ({elapsed} ms)')
