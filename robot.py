@@ -183,7 +183,7 @@ async def scissors():
 async def mega_trident():
     dbResetSettings()
 
-    dbFast( 2 )
+    dbFast( 1 )
 
     #move toward the trident & tip it
     await multitask(
@@ -230,8 +230,8 @@ async def mega_trident():
     #quick back to home
     # db.settings( straight_speed=300, turn_rate=300)
     dbFast( 2 )
-    await db.curve(-800,-45)
-
+    await db.curve(-800,-45,Stop.NONE)
+    await db.straight (-200)
     #done
     db.stop()
 
@@ -241,26 +241,29 @@ async def drop():
 
     #drives forward to the dinosaur thing
     await db.straight(500)
-
-    #turns a little to face the dino-thing
-    await accuTurn(3, tolerance=1)
-
-    #lowers the left arm
-    await left.run_angle(500,-450)
-    #moves forward slightly
-    await db.straight(43)
+    await accuTurn(3)
+    await db.straight(60)
+    await left.run_angle(500,-550)
 
     #turns to put left arm under the dino-thing
-    await accuTurn(20, tolerance=3)
+    await accuTurn(13)
 
     #raises the thing
-    await left.run_angle(150, 170),
+    await left.run_angle(150, 170)
+    await db.turn(-15)
     #slow step back
     db.settings(50,50)
     await db.straight(-20)
 
     #curves out and goes back to starting area
-    dbFast( 2 )
+    how_fast =2
+    straight_speed, straight_acc, turn_rate, turn_acc = db_def_settings
+    db.settings(
+        straight_speed * how_fast,
+        straight_acc * how_fast,       # keep acceleration
+        turn_rate * how_fast,
+        turn_acc  )
+
     await multitask(
         db.arc(500, -50,then = Stop.NONE),
         left.run_angle(500,300)
@@ -287,7 +290,7 @@ async def Crossy_Board():
 
     #dock to pick up the slide panel
     db.settings(None, 100 )
-    await db.straight(120)
+    await db.straight(100)
     
     #back up & head home
     dbFast( 2 )
@@ -316,29 +319,36 @@ async def spinnyThing():
 async def AfterScissors():
     dbResetSettings()
     #face table
-    await right.run_angle(500, -100)
+    # await right.run_angle(500, -100)
     await db.straight(120)
     await accuTurn(-42)
     await db.straight(365)
     await left.run_angle(300,445)
 
     #pull the table up
-    db.settings(*db_def_settings)
-    await db.straight(-300)
+    # db.settings(*db_def_settings)
+    await db.straight(-200)
     await db.straight(50)
+
+    # await db.straight(-460)
     
     #back up to lift little table
-    await left.run_angle(300,-445)
-    await db.straight(-100)
-    await multitask(
-        right.run_angle(-400, 500),
-        accuTurn(120)
-    )
-    await db.arc(300,-60)
-
+    await left.run_angle(300,-145)
     dbFast( 2 )
-    await db.arc(240, 60, None, Stop.NONE)
-    await db.straight(300)
+    await multitask (
+        db.straight(-500),
+        left.run_angle (300,-300)
+    )
+    # await db.straight(-110)
+    # await multitask(
+    #     right.run_angle(-400, 500),
+    #     accuTurn(120)
+    # )
+    # await db.arc(300,-60)
+
+    # dbFast( 2 )
+    # await db.arc(240, 60, None, Stop.NONE)
+    # await db.straight(300)
     #done
     db.stop()
 
