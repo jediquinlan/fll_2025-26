@@ -214,11 +214,11 @@ async def mega_trident():
 
     # #go fwd and lift up the mine cart
     await multitask(
-        db.straight(100),
+        db.straight(60),
         right.run_angle(500, -360*3)
     )
 
-    await db.straight( -190 )
+    await db.straight( -140 )
     await accuTurn( 0 )
 
     await db.straight( -200 )
@@ -231,7 +231,7 @@ async def mega_trident():
     # db.settings( straight_speed=300, turn_rate=300)
     dbFast( 2 )
     await db.curve(-800,-45,Stop.NONE)
-    await db.straight (-200)
+    await db.straight (-70)
     #done
     db.stop()
 
@@ -240,9 +240,9 @@ async def drop():
     dbFast( 2 )
 
     #drives forward to the dinosaur thing
-    await db.straight(500)
-    await accuTurn(3)
-    await db.straight(60)
+    await db.straight(560)
+    # await accuTurn(3)
+    # await db.straight(60)
     await left.run_angle(500,-550)
 
     #turns to put left arm under the dino-thing
@@ -250,6 +250,7 @@ async def drop():
 
     #raises the thing
     await left.run_angle(150, 170)
+    await db.straight(20)
     await db.turn(-15)
     #slow step back
     db.settings(50,50)
