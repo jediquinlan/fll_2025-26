@@ -230,8 +230,8 @@ async def mega_trident():
     #quick back to home
     # db.settings( straight_speed=300, turn_rate=300)
     dbFast( 2 )
-    await db.curve(-800,-45,Stop.NONE)
-    await db.straight (-70)
+    await db.arc(-800,None,-500,Stop.NONE)
+    # await db.straight (-70)
     #done
     db.stop()
 
@@ -243,7 +243,7 @@ async def drop():
     await db.straight(560)
     # await accuTurn(3)
     # await db.straight(60)
-    await left.run_angle(500,-550)
+    await left.run_angle(500,-500)
 
     #turns to put left arm under the dino-thing
     await accuTurn(13)
@@ -251,6 +251,7 @@ async def drop():
     #raises the thing
     await left.run_angle(150, 170)
     await db.straight(20)
+    await db.straight(-20)
     await db.turn(-15)
     #slow step back
     db.settings(50,50)
