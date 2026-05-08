@@ -11,25 +11,25 @@ WHEEL_DIAMETER_MM = 87
 AXLE_TRACK_MM = 148
 
 # ─── Mosaic dimensions (mm) ───
-MOSAIC_W_MM = 800
-MOSAIC_H_MM = 3000
+MOSAIC_W_MM = 300
+MOSAIC_H_MM = 500
 
 # Map Color enum to numbers
 COLOR_MAP = {
     Color.RED: 1,
     Color.GREEN: 2,
     Color.BLUE: 3,
-    Color.YELLOW: 4,
+    Color.YELLOW: 5,
     Color.WHITE: 5,
     Color.BLACK: 6,
-    None: 0
+    None: 5
 }
 
 # Grid scanning parameters
-RESOLUTION_MM = 50
+RESOLUTION_MM = 10
 GRID_WIDTH = MOSAIC_W_MM // RESOLUTION_MM
 GRID_HEIGHT = MOSAIC_H_MM // RESOLUTION_MM
-SENSOR_OFFSET_MM = 100
+SENSOR_OFFSET_MM = -50
 
 # Protocol marker (two bytes to avoid collision with valid coordinates)
 MARKER = b'\xFF\xFE'
@@ -93,7 +93,7 @@ def scan():
                 color = sensor.color()
                 color_code = COLOR_MAP.get(color, 0)
                 send_cell(scan_w, scan_times, color_code)
-                hub.speaker.beep()
+                # hub.speaker.beep()
                 if odd:
                     scan_times += 1
                     if scan_times >= GRID_HEIGHT:
@@ -107,6 +107,7 @@ def scan():
 
         if x < GRID_WIDTH - 1:
             if odd:
+                hub.speaker.beep()
                 heading += 90
                 accuTurn(heading)
                 db.straight(RESOLUTION_MM)
@@ -114,6 +115,7 @@ def scan():
                 accuTurn(heading)
                 db.straight(-SENSOR_OFFSET_MM)
             else:
+                hub.speaker.beep()
                 heading -= 90
                 accuTurn(heading)
                 db.straight(RESOLUTION_MM)
