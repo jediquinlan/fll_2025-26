@@ -128,7 +128,7 @@ async def scissors():
     #straighten out and back up and extend scissors
     await accuTurn(0)
     await multitask(
-        db.straight( -138 ), 
+        db.straight( -118 ), 
         right.run_angle( 500, 505 )
     )
 
@@ -208,7 +208,7 @@ async def mega_trident():
     await db.straight(-30)
 
     # #turn to minecart, then put arm down
-    await accuTurn( 76 )
+    await accuTurn( 75 )
     await right.run_angle(500, 360*2.5 )
 
     # #go fwd and lift up the mine cart
@@ -217,7 +217,7 @@ async def mega_trident():
         right.run_angle(500, -360*3)
     )
 
-    await db.straight( -140 )
+    await db.straight( -120 )
     await accuTurn( 0 )
 
     await db.straight( -200 )
@@ -319,7 +319,7 @@ async def spinnyThing():
 async def AfterScissors():
     dbResetSettings()
     #face table
-    await db.straight(120)
+    await db.straight(130)
     await accuTurn(-42)
     await db.straight(365)
     await left.run_angle(300,445,then=Stop.COAST)
