@@ -128,7 +128,7 @@ async def scissors():
     #straighten out and back up and extend scissors
     await accuTurn(0)
     await multitask(
-        db.straight( -118 ), 
+        db.straight( -138 ), 
         right.run_angle( 500, 505 )
     )
 
