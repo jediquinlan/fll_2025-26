@@ -212,10 +212,12 @@ async def mega_trident():
     await right.run_angle(500, 360*2.5 )
 
     # #go fwd and lift up the mine cart
+    db.settings(100)
     await multitask(
         db.straight(60),
         right.run_angle(500, -360*3)
     )
+    db.settings(*db_def_settings)
 
     await db.straight( -120 )
     await accuTurn( 0 )
